@@ -510,6 +510,39 @@ window.deleteReview = function(id) {
     }
 };
 
+const INITIAL_REVIEWS_LIST = [
+    {
+        id: 1790692450000,
+        name: "Phương Anh",
+        location: "Khu tập thể Văn Điển",
+        dish: "Mỳ Trộn Sốt Cay Đậm Đà",
+        rating: 5,
+        comment: "Mỳ trộn sốt cay đậm đà chuẩn vị, sợi mỳ dai ngon, đầy đặn topping bò khô và trứng cút. Chiều nào đói bụng đặt một phần là no căng bụng luôn!",
+        date: "29/09/2026",
+        verified: true
+    },
+    {
+        id: 1790692420000,
+        name: "Trần Đức Nam",
+        location: "Chung cư Tecco Diamond, Tứ Hiệp",
+        dish: "Chè Xoài Caramen Núng Nính",
+        rating: 5,
+        comment: "Caramen béo ngậy mềm tan, miếng xoài tươi ngọt đậm đà kết hợp nước cốt dừa thơm phức. Đóng gói rất cẩn thận, ship đến nơi vẫn mát lạnh.",
+        date: "29/09/2026",
+        verified: true
+    },
+    {
+        id: 1790692395817,
+        name: "Nguyễn Thị Hoa",
+        location: "Cư dân Ngũ Hiệp, Thanh Trì",
+        dish: "Nem Nướng Nha Trang Đặc Biệt",
+        rating: 5,
+        comment: "Nem nướng thơm ngon, sốt chấm gia truyền béo ngậy ăn rất cuốn! Rau sống tươi sạch, giao nhanh trong 20 phút.",
+        date: "29/09/2026",
+        verified: true
+    }
+];
+
 // Render Real Reviews List & Summary
 function renderReviews() {
     const grid = document.getElementById("reviews-grid");
@@ -519,7 +552,11 @@ function renderReviews() {
 
     if (!grid) return;
 
-    let reviews = JSON.parse(localStorage.getItem("tiemchena_reviews") || "[]");
+    let reviews = JSON.parse(localStorage.getItem("tiemchena_reviews") || "null");
+    if (!reviews || reviews.length === 0) {
+        reviews = [...INITIAL_REVIEWS_LIST];
+        localStorage.setItem("tiemchena_reviews", JSON.stringify(reviews));
+    }
 
     const heroRatingEl = document.getElementById("hero-rating-stat");
 
