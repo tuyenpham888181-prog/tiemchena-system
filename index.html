@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiệm Chè Na - Chè Nhà Nấu Thanh Mát & Dưỡng Nhan</title>
+    <meta name="description" content="Thưởng thức chè nhà nấu chuẩn vị, thanh mát ít ngọt, nguyên liệu tươi ngon mỗi ngày tại Tiệm Chè Na. Nhận ngay Voucher 20K cho đơn đầu tiên!">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top Announcement Bar -->
+    <div class="top-bar">
+        <div class="container top-bar-content">
+            <span>🎉 <strong>ƯU ĐÃI RA MẮT:</strong> Tặng Voucher <strong>20.000đ</strong> + Ebook "Bí quyết Chè Dưỡng Nhan" khi để lại thông tin!</span>
+            <a href="#gift-section" class="top-bar-btn">Nhận Quà Ngay</a>
+        </div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="header" id="header">
+        <div class="container nav-container">
+            <a href="#" class="brand-logo">
+                <span class="logo-icon"><i class="fa-solid fa-bowl-rice"></i></span>
+                <span class="logo-text">Tiệm Chè <span>Na</span></span>
+            </a>
+
+            <nav class="nav-menu" id="nav-menu">
+                <a href="#about" class="nav-link">Về Tiệm</a>
+                <a href="#menu" class="nav-link">Menu Món</a>
+                <a href="#gift-section" class="nav-link special-link"><i class="fa-solid fa-gift"></i> Nhận Voucher 20K</a>
+                <a href="#reviews" class="nav-link">Cảm Nhận</a>
+                <a href="#order" class="nav-link btn-nav-cta">Đặt Món Ngay</a>
+            </nav>
+
+            <div class="nav-actions">
+                <button class="cart-btn" id="cart-toggle-btn" title="Giỏ hàng">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </button>
+                <button class="mobile-toggle" id="mobile-toggle" aria-label="Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section" id="hero">
+            <div class="hero-bg-overlay"></div>
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <div class="badge-tag"><i class="fa-solid fa-sparkles"></i> 100% Nấu Tươi Mỗi Ngày • Vị Thanh Ít Ngọt</div>
+                    <h1 class="hero-title">Chè Nhà Nấu <span class="highlight-text">Thanh Mát</span> Đậm Đà Từng Muỗng</h1>
+                    <p class="hero-desc">
+                        Tiệm Chè Na mang đến những bát chè truyền thống & dưỡng nhan tươi ngon, sử dụng đường phèn thanh khiết, không chất bảo quản, trọn vẹn vị ngon lành tự nhiên cho cả gia đình.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#menu" class="btn btn-primary"><i class="fa-solid fa-utensils"></i> Khám Phá Menu</a>
+                        <a href="#gift-section" class="btn btn-outline"><i class="fa-solid fa-ticket"></i> Lấy Mã Giảm 20K</a>
+                    </div>
+                    
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <strong>15+</strong>
+                            <span>Vị chè đặc sản</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <strong>100%</strong>
+                            <span>Đường phèn thanh dịu</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <strong>4.9 ★</strong>
+                            <span>Khách yêu thích</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-card-preview">
+                    <div class="hero-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80" alt="Bát chè dưỡng nhan Tiệm Chè Na" class="hero-img">
+                        <div class="floating-badge badge-top">
+                            <span class="icon">✨</span>
+                            <div>
+                                <small>Best Seller</small>
+                                <strong>Chè Dưỡng Nhan Tuyết Yến</strong>
+                            </div>
+                        </div>
+                        <div class="floating-badge badge-bottom">
+                            <span class="icon">🥥</span>
+                            <div>
+                                <small>Cốt dừa béo bùi</small>
+                                <strong>Nấu mới mỗi sáng</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Value Proposition Section -->
+        <section class="values-section" id="about">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="sub-title">CAM KẾT TỪ TIỆM CHÈ NA</span>
+                    <h2 class="section-title">Vì Sao Khách Hàng Luôn Tin Chọn?</h2>
+                </div>
+
+                <div class="values-grid">
+                    <div class="value-card">
+                        <div class="value-icon"><i class="fa-solid fa-leaf"></i></div>
+                        <h3>Nguyên Liệu Loại 1</h3>
+                        <p>Tuyết yến, nhựa đào, hạt sen, bưởi tươi... được tuyển chọn kỹ lưỡng, rõ nguồn gốc xuất xứ.</p>
+                    </div>
+
+                    <div class="value-card">
+                        <div class="value-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                        <h3>Thanh Mát Ít Ngọt</h3>
+                        <p>Nấu hoàn toàn bằng đường phèn kết tinh tự nhiên, ngọt nhẹ thanh tao, không sợ ngấy hay béo.</p>
+                    </div>
+
+                    <div class="value-card">
+                        <div class="value-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                        <h3>Tươi Mới Trong Ngày</h3>
+                        <p>Nấu mẻ mới theo ngày, bảo quản lạnh sạch sẽ, giao đến tay khách luôn giữ trọn hương vị tươi ngon nhất.</p>
+                    </div>
+
+                    <div class="value-card">
+                        <div class="value-icon"><i class="fa-solid fa-motorcycle"></i></div>
+                        <h3>Giao Nhanh Tận Nơi</h3>
+                        <p>Đóng gói cẩn thận từng hộp kèm đá riêng và muỗng tiện lợi, giao nhanh chóng mát lạnh.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Menu Section -->
+        <section class="menu-section" id="menu">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="sub-title">THỰC ĐƠN ĐẶC SẮC</span>
+                    <h2 class="section-title">Chọn Món Chè Yêu Thích Của Bạn</h2>
+                    <p class="section-desc">Mỗi phần chè đều kèm nước cốt dừa tươi thơm béo và đá lạnh riêng</p>
+                </div>
+
+                <!-- Category Tabs -->
+                <div class="menu-categories">
+                    <button class="cat-btn active" data-cat="all">Tất Cả Món</button>
+                    <button class="cat-btn" data-cat="duong-nhan">Chè Dưỡng Nhan</button>
+                    <button class="cat-btn" data-cat="truyen-thong">Chè Truyền Thống</button>
+                    <button class="cat-btn" data-cat="hien-dai">Chè Khúc Bạch & Trái Cây</button>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="products-grid" id="products-grid">
+                    <!-- Products will be dynamically populated or fallback rendered -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Lead Capture / Digital Gift Magnet Section -->
+        <section class="gift-section" id="gift-section">
+            <div class="container">
+                <div class="gift-card-wrapper">
+                    <div class="gift-text-col">
+                        <span class="badge-gift"><i class="fa-solid fa-gift"></i> QUÀ TẶNG ĐẶC BIỆT DÀNH CHO BẠN</span>
+                        <h2>Đăng Ký Nhận Ngay Voucher 20K + Ebook "10 Món Chè Thanh Nhiệt Tại Nhà"</h2>
+                        <p>Điền thông tin bên dưới để nhận ngay mã ưu đãi giảm 20.000đ áp dụng cho đơn hàng bất kỳ, cùng file PDF công thức nấu chè dưỡng nhan chuẩn vị gửi thẳng qua Zalo/Email của bạn!</p>
+                        
+                        <ul class="gift-benefits">
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Voucher 20.000đ</strong> giảm trực tiếp vào đơn đầu tiên</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Ebook PDF độc quyền</strong> bí quyết sơ chế cùi bưởi giòn không đắng</li>
+                            <li><i class="fa-solid fa-circle-check"></i> Được ưu tiên giao nhanh và cập nhật món mới đầu tiên</li>
+                        </ul>
+                    </div>
+
+                    <div class="gift-form-col">
+                        <div class="form-box">
+                            <div class="form-header">
+                                <h3><i class="fa-solid fa-sparkles"></i> Nhận Quà & Đặt Món Ngay</h3>
+                                <p>Cam kết bảo mật thông tin 100%</p>
+                            </div>
+
+                            <form id="lead-form" class="lead-form">
+                                <div class="form-group">
+                                    <label for="lead-name"><i class="fa-solid fa-user"></i> Họ và tên của bạn <span class="req">*</span></label>
+                                    <input type="text" id="lead-name" required placeholder="Ví dụ: Nguyễn Thị Mai" autocomplete="name">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="lead-phone"><i class="fa-solid fa-phone"></i> Số điện thoại / Zalo nhận quà <span class="req">*</span></label>
+                                    <input type="tel" id="lead-phone" required placeholder="Ví dụ: 0987 654 321" autocomplete="tel">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="lead-address"><i class="fa-solid fa-location-dot"></i> Địa chỉ nhận hàng (nếu muốn đặt luôn)</label>
+                                    <input type="text" id="lead-address" placeholder="Ví dụ: Số 12 Ngõ 45 Cầu Giấy, Hà Nội">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="lead-note"><i class="fa-solid fa-comment-dots"></i> Món chè bạn muốn thử hoặc lời nhắn</label>
+                                    <textarea id="lead-note" rows="2" placeholder="Ví dụ: 1 Chè bưởi ít ngọt, 1 Chè dưỡng nhan..."></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-submit-lead" id="btn-submit-lead">
+                                    <span><i class="fa-solid fa-paper-plane"></i> GỬI THÔNG TIN & LẤY MÃ VOUCHER</span>
+                                </button>
+                            </form>
+                            
+                            <div id="lead-success-msg" class="lead-success-box hidden">
+                                <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+                                <h4>🎉 Chúc mừng bạn đã đăng ký thành công!</h4>
+                                <p>Mã voucher 20k của bạn là: <strong class="voucher-code">TIEMCHENA20K</strong></p>
+                                <p class="small-text">Tiệm Chè Na đã nhận được thông tin và sẽ liên hệ xác nhận ngay qua Zalo/SĐT để gửi kèm Ebook!</p>
+                                <a href="https://zalo.me" target="_blank" class="btn-zalo-direct"><i class="fa-solid fa-comment"></i> Nhắn tin Zalo với Tiệm ngay</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Customer Reviews Section -->
+        <section class="reviews-section" id="reviews">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="sub-title">ĐÁNH GIÁ THỰC TẾ</span>
+                    <h2 class="section-title">Khách Hàng Nói Gì Về Tiệm Chè Na?</h2>
+                </div>
+
+                <div class="reviews-grid">
+                    <div class="review-card">
+                        <div class="review-stars">★★★★★</div>
+                        <p class="review-comment">"Chè bưởi ở đây cùi giòn sần sật, hoàn toàn không bị đắng hay ngấy. Cốt dừa thơm ngậy vừa phải, chấm 10/10!"</p>
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">TH</div>
+                            <div>
+                                <strong>Trần Thu Hà</strong>
+                                <small>Khách hàng tại Hà Nội</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="review-card">
+                        <div class="review-stars">★★★★★</div>
+                        <p class="review-comment">"Mình thuộc tuýp ăn kiêng ít ngọt, gọi thử Chè Dưỡng Nhan Tuyết Yến thấy vị ngọt dịu rất vừa miệng. Đóng gói rất sạch sẽ và chu đáo."</p>
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">MN</div>
+                            <div>
+                                <strong>Minh Ngọc</strong>
+                                <small>Nhân viên văn phòng</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="review-card">
+                        <div class="review-stars">★★★★★</div>
+                        <p class="review-comment">"Đặt web rất nhanh, để lại SĐT là có bạn gọi xác nhận và áp luôn voucher 20k. Khúc bạch hạnh nhân mềm mịn, trái cây tươi."</p>
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">QD</div>
+                            <div>
+                                <strong>Quang Dũng</strong>
+                                <small>Khách hàng thân thiết</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lead Admin Viewer Modal (for verification & proof) -->
+        <div class="admin-lead-viewer container" style="margin: 40px auto 20px auto; padding: 20px; background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="margin: 0; color: #1e293b; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-database" style="color: #059669;"></i> Danh Sách Lead / Khách Để Lại Thông Tin (Bằng Chứng Ngày 4)
+                </h3>
+                <div style="display: flex; gap: 10px;">
+                    <button id="btn-export-leads" class="btn" style="padding: 6px 14px; font-size: 0.85rem; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer;">
+                        <i class="fa-solid fa-download"></i> Tải Danh Sách
+                    </button>
+                    <button id="btn-clear-leads" class="btn" style="padding: 6px 14px; font-size: 0.85rem; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; border-radius: 8px; cursor: pointer;">
+                        <i class="fa-solid fa-trash"></i> Xoá Dữ Liệu Test
+                    </button>
+                </div>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" id="leads-table">
+                    <thead>
+                        <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #e2e8f0;">
+                            <th style="padding: 10px;">Thời Gian</th>
+                            <th style="padding: 10px;">Họ Tên</th>
+                            <th style="padding: 10px;">Số Điện Thoại</th>
+                            <th style="padding: 10px;">Địa Chỉ</th>
+                            <th style="padding: 10px;">Món Đặt / Lời Nhắn</th>
+                            <th style="padding: 10px;">Trạng Thái</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leads-tbody">
+                        <!-- Leads will appear here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Cart Drawer / Sidebar -->
+    <div class="cart-drawer-overlay" id="cart-drawer-overlay"></div>
+    <div class="cart-drawer" id="cart-drawer">
+        <div class="cart-header">
+            <h3><i class="fa-solid fa-bag-shopping"></i> Giỏ Hàng Của Bạn</h3>
+            <button class="cart-close" id="cart-close-btn">&times;</button>
+        </div>
+        <div class="cart-items" id="cart-items-container">
+            <p class="empty-cart-msg">Giỏ hàng của bạn đang trống. Hãy chọn món chè yêu thích nhé!</p>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Tạm tính:</span>
+                <strong id="cart-subtotal">0đ</strong>
+            </div>
+            <a href="#gift-section" class="btn btn-primary btn-checkout" id="btn-checkout-cart">
+                <i class="fa-solid fa-arrow-right"></i> Điền Thông Tin Giao Hàng
+            </a>
+        </div>
+    </div>
+
+    <!-- Live Toast Order Notification -->
+    <div class="toast-notification" id="live-toast">
+        <div class="toast-avatar"><i class="fa-solid fa-bell"></i></div>
+        <div class="toast-content">
+            <strong id="toast-name">Chị Mai (Hà Nội)</strong>
+            <span id="toast-action">vừa đặt 2 phần Chè Dưỡng Nhan</span>
+            <small id="toast-time">1 phút trước</small>
+        </div>
+    </div>
+
+    <!-- Quick Contact Floating Buttons -->
+    <div class="floating-contact">
+        <a href="https://zalo.me" target="_blank" class="contact-btn zalo-btn" title="Chat Zalo Tư Vấn">
+            <span class="tooltip">Nhắn Zalo Ngay</span>
+            <i class="fa-solid fa-comment-dots"></i>
+        </a>
+        <a href="tel:0987654321" class="contact-btn phone-btn" title="Gọi Hotline Đặt Hàng">
+            <span class="tooltip">Hotline Đặt Chè</span>
+            <i class="fa-solid fa-phone-volume"></i>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-col">
+                <div class="brand-logo footer-logo">
+                    <span class="logo-icon"><i class="fa-solid fa-bowl-rice"></i></span>
+                    <span class="logo-text">Tiệm Chè <span>Na</span></span>
+                </div>
+                <p>Thương hiệu chè nhà nấu thơm ngon, thanh mát và tốt cho sức khỏe với 100% nguyên liệu tươi sạch chuẩn nguồn gốc.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Giờ Mở Cửa</h4>
+                <p><i class="fa-regular fa-clock"></i> 08:30 - 22:00 (Tất cả các ngày trong tuần)</p>
+                <p><i class="fa-solid fa-truck-fast"></i> Giao hàng tận nơi từ 30 phút</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Liên Hệ Đặt Chè</h4>
+                <p><i class="fa-solid fa-phone"></i> Hotline: 0987 654 321</p>
+                <p><i class="fa-solid fa-location-dot"></i> Bếp Nấu: Giao hàng toàn thành phố</p>
+            </div>
+        </div>
+        <div class="footer-bottom text-center">
+            <p>© 2026 Tiệm Chè Na. Tự hào mang vị ngọt thanh tự nhiên đến mọi gia đình.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
