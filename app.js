@@ -429,6 +429,16 @@ function initReviewFormToggle() {
     }
 }
 
+window.openAndScrollToReviewForm = function() {
+    const wrapper = document.getElementById("review-form-wrapper");
+    if (wrapper) {
+        wrapper.classList.remove("hidden");
+        wrapper.scrollIntoView({ behavior: "smooth", block: "center" });
+        const nameInput = document.getElementById("review-name");
+        if (nameInput) setTimeout(() => nameInput.focus(), 400);
+    }
+};
+
 // Submit Real Review
 function initReviewFormSubmit() {
     const form = document.getElementById("customer-review-form");
