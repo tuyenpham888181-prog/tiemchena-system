@@ -81,8 +81,8 @@
                         </div>
                         <div class="stat-divider"></div>
                         <div class="stat-item">
-                            <strong>4.9 ★</strong>
-                            <span>Khách yêu thích</span>
+                            <strong id="hero-rating-stat">5.0 ★</strong>
+                            <span>Đánh giá từ khách</span>
                         </div>
                     </div>
                 </div>
@@ -237,44 +237,102 @@
                 <div class="section-header text-center">
                     <span class="sub-title">ĐÁNH GIÁ THỰC TẾ</span>
                     <h2 class="section-title">Khách Hàng Nói Gì Về Tiệm Chè Na?</h2>
+                    <p class="section-desc">100% nhận xét và đánh giá chân thực từ khách hàng đã trải nghiệm</p>
                 </div>
 
-                <div class="reviews-grid">
-                    <div class="review-card">
-                        <div class="review-stars">★★★★★</div>
-                        <p class="review-comment">"Chè bưởi ở đây cùi giòn sần sật, hoàn toàn không bị đắng hay ngấy. Cốt dừa thơm ngậy vừa phải, chấm 10/10!"</p>
-                        <div class="reviewer-info">
-                            <div class="reviewer-avatar">TH</div>
-                            <div>
-                                <strong>Trần Thu Hà</strong>
-                                <small>Khách hàng tại Hà Nội</small>
-                            </div>
+                <!-- Reviews Summary & Action Bar -->
+                <div class="reviews-summary-bar">
+                    <div class="rating-overview">
+                        <div class="rating-big-score" id="avg-rating-score">5.0</div>
+                        <div class="rating-stars-group">
+                            <div class="stars-display" id="avg-rating-stars">★★★★★</div>
+                            <span class="rating-total-count" id="total-reviews-count">0 đánh giá thực tế</span>
                         </div>
                     </div>
+                    <button class="btn btn-primary btn-write-review" id="btn-toggle-review-form">
+                        <i class="fa-solid fa-pen-to-square"></i> Viết Đánh Giá Của Bạn
+                    </button>
+                </div>
 
-                    <div class="review-card">
-                        <div class="review-stars">★★★★★</div>
-                        <p class="review-comment">"Mình thuộc tuýp ăn kiêng ít ngọt, gọi thử Chè Dưỡng Nhan Tuyết Yến thấy vị ngọt dịu rất vừa miệng. Đóng gói rất sạch sẽ và chu đáo."</p>
-                        <div class="reviewer-info">
-                            <div class="reviewer-avatar">MN</div>
+                <!-- Review Submission Form Box (Hidden by default, toggleable) -->
+                <div class="review-form-wrapper hidden" id="review-form-wrapper">
+                    <div class="review-form-card">
+                        <div class="review-form-header">
                             <div>
-                                <strong>Minh Ngọc</strong>
-                                <small>Nhân viên văn phòng</small>
+                                <h3><i class="fa-solid fa-feather-pointed"></i> Gửi Cảm Nhận Của Bạn</h3>
+                                <p>Chia sẻ trải nghiệm thưởng thức chè thực tế tại Tiệm Chè Na</p>
                             </div>
+                            <button type="button" class="btn-close-review-form" id="btn-close-review-form" title="Đóng form">&times;</button>
                         </div>
-                    </div>
 
-                    <div class="review-card">
-                        <div class="review-stars">★★★★★</div>
-                        <p class="review-comment">"Đặt web rất nhanh, để lại SĐT là có bạn gọi xác nhận và áp luôn voucher 20k. Khúc bạch hạnh nhân mềm mịn, trái cây tươi."</p>
-                        <div class="reviewer-info">
-                            <div class="reviewer-avatar">QD</div>
+                        <form id="customer-review-form" class="customer-review-form">
+                            <!-- Star Rating Picker -->
+                            <div class="form-group rating-picker-group">
+                                <label>Chất lượng & độ hài lòng của bạn <span class="req">*</span></label>
+                                <div class="star-rating-widget" id="star-rating-widget">
+                                    <div class="stars-select" id="stars-select">
+                                        <i class="fa-solid fa-star active" data-rating="1"></i>
+                                        <i class="fa-solid fa-star active" data-rating="2"></i>
+                                        <i class="fa-solid fa-star active" data-rating="3"></i>
+                                        <i class="fa-solid fa-star active" data-rating="4"></i>
+                                        <i class="fa-solid fa-star active" data-rating="5"></i>
+                                    </div>
+                                    <span class="rating-label" id="rating-text-label">5 sao - Cực kỳ ngon & hài lòng</span>
+                                    <input type="hidden" id="selected-rating-value" value="5">
+                                </div>
+                            </div>
+
+                            <div class="form-row-2col">
+                                <div class="form-group">
+                                    <label for="review-name"><i class="fa-solid fa-user"></i> Tên của bạn <span class="req">*</span></label>
+                                    <input type="text" id="review-name" required placeholder="Ví dụ: Hoàng Yến, Anh Minh...">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="review-location"><i class="fa-solid fa-location-dot"></i> Nơi ở / Danh xưng</label>
+                                    <input type="text" id="review-location" placeholder="Ví dụ: Khách tại Hà Nội, Cầu Giấy...">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="review-dish"><i class="fa-solid fa-bowl-food"></i> Món chè bạn đã thưởng thức</label>
+                                <select id="review-dish" class="form-select">
+                                    <option value="Chè Dưỡng Nhan Tuyết Yến">Chè Dưỡng Nhan Tuyết Yến</option>
+                                    <option value="Chè Bưởi An Giang Chuẩn Vị">Chè Bưởi An Giang Chuẩn Vị</option>
+                                    <option value="Chè Khúc Bạch Hạnh Nhân">Chè Khúc Bạch Hạnh Nhân</option>
+                                    <option value="Chè Sầu Riêng Đà Nẵng">Chè Sầu Riêng Đà Nẵng</option>
+                                    <option value="Chè Thái Thập Cẩm Đặc Biệt">Chè Thái Thập Cẩm Đặc Biệt</option>
+                                    <option value="Chè Hạt Sen Long Nhãn">Chè Hạt Sen Long Nhãn</option>
+                                    <option value="Nhiều món tại tiệm">Nhiều món / Toàn bộ menu</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="review-comment"><i class="fa-solid fa-comment-dots"></i> Nhận xét & cảm nhận của bạn <span class="req">*</span></label>
+                                <textarea id="review-comment" rows="3" required placeholder="Chia sẻ cảm nhận về vị chè (độ ngọt thanh, cốt dừa, nguyên liệu), cách đóng gói, thời gian giao hàng..."></textarea>
+                            </div>
+
+                            <div class="review-form-actions">
+                                <button type="submit" class="btn btn-primary btn-submit-review">
+                                    <i class="fa-solid fa-paper-plane"></i> Đăng Đánh Giá Thực Tế
+                                </button>
+                                <button type="button" class="btn btn-outline" id="btn-cancel-review">Hủy</button>
+                            </div>
+                        </form>
+
+                        <div id="review-success-msg" class="review-success-alert hidden">
+                            <i class="fa-solid fa-circle-check"></i>
                             <div>
-                                <strong>Quang Dũng</strong>
-                                <small>Khách hàng thân thiết</small>
+                                <strong>Cảm ơn bạn đã gửi đánh giá!</strong>
+                                <span>Cảm nhận của bạn đã được lưu và hiển thị trực tiếp bên dưới.</span>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Dynamic Real Reviews Grid -->
+                <div class="reviews-grid" id="reviews-grid">
+                    <!-- Real reviews rendered via JS -->
                 </div>
             </div>
         </section>
@@ -333,16 +391,6 @@
             <a href="#gift-section" class="btn btn-primary btn-checkout" id="btn-checkout-cart">
                 <i class="fa-solid fa-arrow-right"></i> Điền Thông Tin Giao Hàng
             </a>
-        </div>
-    </div>
-
-    <!-- Live Toast Order Notification -->
-    <div class="toast-notification" id="live-toast">
-        <div class="toast-avatar"><i class="fa-solid fa-bell"></i></div>
-        <div class="toast-content">
-            <strong id="toast-name">Chị Mai (Hà Nội)</strong>
-            <span id="toast-action">vừa đặt 2 phần Chè Dưỡng Nhan</span>
-            <small id="toast-time">1 phút trước</small>
         </div>
     </div>
 
