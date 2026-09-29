@@ -213,10 +213,14 @@ function closeCartDrawer() {
     if (overlay) overlay.classList.remove("active");
 }
 
-// Lead Capture System
+// Lead & Order Capture System
+const ZALO_OWNER_PHONE = "0986479285";
+
 function initLeadForm() {
     const form = document.getElementById("lead-form");
     const successBox = document.getElementById("lead-success-msg");
+    const invoicePreview = document.getElementById("invoice-preview");
+    const sendZaloBtn = document.getElementById("btn-send-zalo-invoice");
 
     if (!form) return;
 
@@ -233,22 +237,101 @@ function initLeadForm() {
             return;
         }
 
+        const orderCode = "NA" + Math.floor(100000 + Math.random() * 900000);
+        const orderTime = new Date().toLocaleString('vi-VN');
+
+        let cartSummary = "";
+        let totalPrice = 0;
+
+        if (cart.length > 0) {
+            cartSummary = cart.map(i => `${i.qty}x ${i.name} (${formatMoney(i.price * i.qty)})`).join("\n • ");
+            totalPrice = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+        }
+
+        const discount = totalPrice > 0 ? 20000 : 0;
+        const finalPrice = Math.max(0, totalPrice - discount);
+
         const newLead = {
             id: Date.now(),
-            time: new Date().toLocaleString('vi-VN'),
+            orderCode: orderCode,
+            time: orderTime,
             name: name,
             phone: phone,
             address: address || "Chưa cung cấp",
-            note: note || "Đăng ký nhận Voucher 20K & Ebook",
-            status: "Chờ liên hệ"
+            note: note || (cart.length > 0 ? `Đơn hàng: ${cart.map(i => `${i.qty}x ${i.name}`).join(", ")}` : "Đăng ký nhận Voucher 20K & Ebook"),
+            total: totalPrice > 0 ? formatMoney(finalPrice) : "Nhận ưu đãi 20k",
+            status: "Đã gửi qua Zalo"
         };
 
-        // Save lead to localStorage
+        // Save lead/order to localStorage
         saveLead(newLead);
 
-        // Show success
+        // Build invoice plain-text for Zalo message
+        let zaloMessage = `🧾 ĐƠN HÀNG MỚI - TIỆM CHÈ NA\n`;
+        zaloMessage += `--------------------------------\n`;
+        zaloMessage += `🔖 Mã đơn: #${orderCode}\n`;
+        zaloMessage += `⏰ Thời gian: ${orderTime}\n`;
+        zaloMessage += `👤 Khách hàng: ${name}\n`;
+        zaloMessage += `📞 Số điện thoại: ${phone}\n`;
+        zaloMessage += `📍 Địa chỉ: ${address || "Giao tận nơi (sẽ báo cụ thể)"}\n`;
+        if (cart.length > 0) {
+            zaloMessage += `🥣 Món đã chọn:\n • ${cartSummary}\n`;
+            zaloMessage += `💰 Tạm tính: ${formatMoney(totalPrice)}\n`;
+            zaloMessage += `🎁 Voucher: -20.000đ (TIEMCHENA20K)\n`;
+            zaloMessage += `👉 TỔNG THANH TOÁN: ${formatMoney(finalPrice)}\n`;
+        }
+        if (note) {
+            zaloMessage += `📝 Ghi chú: ${note}\n`;
+        }
+        zaloMessage += `--------------------------------\n`;
+        zaloMessage += `Tiệm Chè Na vui lòng xác nhận và chuẩn bị đơn giúp mình nhé!`;
+
+        // Render Invoice Preview in HTML
+        if (invoicePreview) {
+            invoicePreview.innerHTML = `
+                <div style="font-weight: 700; color: #0f172a; margin-bottom: 8px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px; display: flex; justify-content: space-between;">
+                    <span>Mã Đơn: #${orderCode}</span>
+                    <span style="color: #059669; font-size: 0.85rem;">${orderTime}</span>
+                </div>
+                <div style="line-height: 1.6;">
+                    <div><strong>Khách hàng:</strong> ${escapeHtml(name)} - <strong>SĐT:</strong> ${escapeHtml(phone)}</div>
+                    <div><strong>Địa chỉ:</strong> ${escapeHtml(address || "Chưa cung cấp")}</div>
+                    ${cart.length > 0 ? `
+                        <div style="margin-top: 8px; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <strong style="color: #047857;">Món đã chọn:</strong>
+                            <ul style="margin: 4px 0 6px 18px; padding: 0;">
+                                ${cart.map(i => `<li>${i.qty}x ${escapeHtml(i.name)}: <strong>${formatMoney(i.price * i.qty)}</strong></li>`).join('')}
+                            </ul>
+                            <div style="font-size: 0.85rem; color: #64748b;">Ưu đãi Voucher: <strong>-20.000đ</strong></div>
+                            <div style="font-size: 1.05rem; font-weight: 800; color: #dc2626; margin-top: 4px;">Tổng cộng: ${formatMoney(finalPrice)}</div>
+                        </div>
+                    ` : ''}
+                    ${note ? `<div style="margin-top: 6px; font-style: italic; color: #475569;"><strong>Ghi chú:</strong> ${escapeHtml(note)}</div>` : ''}
+                </div>
+            `;
+        }
+
+        // Setup Zalo Direct Link with Owner Number 0986479285
+        if (sendZaloBtn) {
+            sendZaloBtn.href = `https://zalo.me/${ZALO_OWNER_PHONE}`;
+            sendZaloBtn.onclick = () => {
+                // Copy invoice to clipboard for convenience
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(zaloMessage).then(() => {
+                        // Copied
+                    }).catch(() => {});
+                }
+            };
+        }
+
+        // Show success and invoice
         form.classList.add("hidden");
         if (successBox) successBox.classList.remove("hidden");
+
+        // Copy bill content automatically to clipboard so the user can easily paste into Zalo chat
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(zaloMessage).catch(() => {});
+        }
 
         // Refresh lead table
         initLeadsTable();

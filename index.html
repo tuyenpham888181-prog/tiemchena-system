@@ -220,10 +220,14 @@
                             
                             <div id="lead-success-msg" class="lead-success-box hidden">
                                 <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
-                                <h4>🎉 Chúc mừng bạn đã đăng ký thành công!</h4>
-                                <p>Mã voucher 20k của bạn là: <strong class="voucher-code">TIEMCHENA20K</strong></p>
-                                <p class="small-text">Tiệm Chè Na đã nhận được thông tin và sẽ liên hệ xác nhận ngay qua Zalo/SĐT để gửi kèm Ebook!</p>
-                                <a href="https://zalo.me" target="_blank" class="btn-zalo-direct"><i class="fa-solid fa-comment"></i> Nhắn tin Zalo với Tiệm ngay</a>
+                                <h4>🎉 Đặt Hàng & Nhận Ưu Đãi Thành Công!</h4>
+                                <div id="invoice-preview" class="invoice-box" style="margin: 15px 0; text-align: left; background: #f8fafc; border: 1px dashed #059669; border-radius: 10px; padding: 12px; font-size: 0.9rem; color: #1e293b;">
+                                    <!-- Dynamic invoice will be rendered here -->
+                                </div>
+                                <p class="small-text" style="color: #047857; font-weight: 600;">👉 Hãy nhấn nút bên dưới để gửi ngay hóa đơn này tới Zalo chủ quán (0986.479.285) xác nhận giao hàng nhé!</p>
+                                <a id="btn-send-zalo-invoice" href="https://zalo.me/0986479285" target="_blank" class="btn-zalo-direct" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; padding: 12px 20px; font-weight: 700; background: #0068ff; color: #fff; border-radius: 9999px; text-decoration: none; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,104,255,0.35);">
+                                    <i class="fa-solid fa-paper-plane"></i> Gửi Hóa Đơn Qua Zalo (0986.479.285)
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -349,7 +353,7 @@
         <div class="admin-lead-viewer container" style="margin: 40px auto 20px auto; padding: 20px; background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                 <h3 style="margin: 0; color: #1e293b; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-database" style="color: #059669;"></i> Danh Sách Lead / Khách Để Lại Thông Tin (Bằng Chứng Ngày 4)
+                    <i class="fa-solid fa-database" style="color: #059669;"></i> Danh Sách Đơn Hàng / Khách Để Lại Thông Tin
                 </h3>
                 <div style="display: flex; gap: 10px;">
                     <button id="btn-export-leads" class="btn" style="padding: 6px 14px; font-size: 0.85rem; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer;">
@@ -397,19 +401,19 @@
                 <strong id="cart-subtotal">0đ</strong>
             </div>
             <a href="#gift-section" class="btn btn-primary btn-checkout" id="btn-checkout-cart">
-                <i class="fa-solid fa-arrow-right"></i> Điền Thông Tin Giao Hàng
+                <i class="fa-solid fa-arrow-right"></i> Điền Thông Tin & Thanh Toán
             </a>
         </div>
     </div>
 
     <!-- Quick Contact Floating Buttons -->
     <div class="floating-contact">
-        <a href="https://zalo.me" target="_blank" class="contact-btn zalo-btn" title="Chat Zalo Tư Vấn">
-            <span class="tooltip">Nhắn Zalo Ngay</span>
+        <a href="https://zalo.me/0986479285" target="_blank" class="contact-btn zalo-btn" title="Chat Zalo Tư Vấn 0986.479.285">
+            <span class="tooltip">Zalo: 0986.479.285</span>
             <i class="fa-solid fa-comment-dots"></i>
         </a>
-        <a href="tel:0987654321" class="contact-btn phone-btn" title="Gọi Hotline Đặt Hàng">
-            <span class="tooltip">Hotline Đặt Chè</span>
+        <a href="tel:0986479285" class="contact-btn phone-btn" title="Gọi Hotline 0986.479.285">
+            <span class="tooltip">Hotline: 0986.479.285</span>
             <i class="fa-solid fa-phone-volume"></i>
         </a>
     </div>
@@ -433,12 +437,13 @@
 
             <div class="footer-col">
                 <h4>Liên Hệ Đặt Chè</h4>
-                <p><i class="fa-solid fa-phone"></i> Hotline: 0987 654 321</p>
+                <p><i class="fa-solid fa-phone"></i> Hotline / Zalo: <a href="tel:0986479285" style="color: inherit; font-weight: 700;">0986 479 285</a></p>
+                <p><i class="fa-solid fa-comment-dots"></i> Zalo đặt hàng: <a href="https://zalo.me/0986479285" target="_blank" style="color: #059669; font-weight: 700;">0986.479.285</a></p>
                 <p><i class="fa-solid fa-location-dot"></i> Bếp Nấu: Giao hàng toàn thành phố</p>
             </div>
         </div>
         <div class="footer-bottom text-center">
-            <p>© 2026 Tiệm Chè Na. Tự hào mang vị ngọt thanh tự nhiên đến mọi gia đình.</p>
+            <p>© 2026 Tiệm Chè Na. Hotline/Zalo: 0986.479.285. Tự hào mang vị ngọt thanh tự nhiên đến mọi gia đình.</p>
         </div>
     </footer>
 
