@@ -1,843 +1,1080 @@
-// ==========================================================================
-// Tiệm Chè Na - JavaScript Logic (Catalog, Cart, Lead Capture & Data Management)
-// ==========================================================================
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
-const PRODUCTS = [
-    {
-        id: 1,
-        name: "Chè Dưỡng Nhan Tuyết Yến",
-        cat: "duong-nhan",
-        price: 35000,
-        desc: "Tuyết yến, nhựa đào, sen tươi, táo đỏ, kỷ tử kết hợp đường phèn thanh dịu.",
-        tag: "Bán Chạy Nhất",
-        img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: 2,
-        name: "Chè Bưởi An Giang Chuẩn Vị",
-        cat: "truyen-thong",
-        price: 28000,
-        desc: "Cùi bưởi giòn sần sật, đỗ xanh bùi thơm quyện cùng nước cốt dừa béo ngậy.",
-        tag: "Đặc Sản",
-        img: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: 3,
-        name: "Chè Khúc Bạch Hạnh Nhân",
-        cat: "hien-dai",
-        price: 35000,
-        desc: "Khúc bạch phô mai sữa mềm mịn, nhãn lồng tươi, rắc hạnh nhân nướng thơm giòn.",
-        tag: "Yêu Thích",
-        img: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: 4,
-        name: "Chè Sầu Riêng Đà Nẵng",
-        cat: "hien-dai",
-        price: 40000,
-        desc: "Thịt sầu riêng tươi nguyên chất, thạch giòn, mít nghệ và cốt dừa thơm nức.",
-        tag: "Món Mới",
-        img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: 5,
-        name: "Chè Thái Thập Cẩm Đặc Biệt",
-        cat: "truyen-thong",
-        price: 32000,
-        desc: "Thạch sương sa, hạt lựu, mít, sầu riêng, nước dừa lá dứa thơm mát sảng khoái.",
-        tag: "Best Seller",
-        img: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: 6,
-        name: "Chè Hạt Sen Long Nhãn",
-        cat: "duong-nhan",
-        price: 32000,
-        desc: "Hạt sen bùi mềm ninh kỹ, bọc trong cùi nhãn ngọt thơm, nước đường phèn hoa bưởi.",
-        tag: "Thanh Mát",
-        img: "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?auto=format&fit=crop&w=600&q=80"
-    }
+window.copyTextToClipboard = function(text, successMsg) {
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      if (typeof showToast === 'function') {
+        showToast(successMsg || 'Đã sao chép vào bộ nhớ tạm!');
+      } else {
+        alert(successMsg || 'Đã sao chép!');
+      }
+    }).catch(() => {
+      prompt("Nhấn Ctrl+C để sao chép:", text);
+    });
+  } else {
+    prompt("Nhấn Ctrl+C để sao chép:", text);
+  }
+};
+
+/**
+ * TIỆM CHÈ NA - APPLICATION LOGIC & STATE MANAGEMENT
+ */
+
+// Master Menu Database
+const MENU_DATA = [
+  {
+    id: "nem-nuong",
+    name: "Nem Nướng Nha Trang Đặc Biệt",
+    category: "hot",
+    price: 35000,
+    image: "images/img_06.jpg",
+    badge: "BEST-SELLER",
+    badgeType: "hot",
+    description: "Nem nướng than hoa thơm lừng, cuốn kèm bánh tráng mềm, ram giòn rụm, dưa leo, xoài xanh và nước chấm thịt băm béo bùi gia truyền."
+  },
+  {
+    id: "che-xoai",
+    name: "Chè Xoài Caramen Núng Nính",
+    category: "cold",
+    price: 30000,
+    image: "images/img_02.jpg",
+    badge: "MÁT LẠNH",
+    badgeType: "cold",
+    description: "Caramen mịn màng núng nính, thịt xoài tươi vàng mọng ngọt thanh quyện cùng nước cốt dừa thơm ngậy và thạch giòn sần sật."
+  },
+  {
+    id: "my-tron",
+    name: "Mỳ Trộn Sốt Cay Đậm Đà",
+    category: "hot",
+    price: 35000,
+    image: "images/img_07.jpg",
+    badge: "ĐẬM VỊ",
+    badgeType: "hot",
+    description: "Sợi mỳ dai mềm thấm đẫm sốt chua ngọt cay tê, topping trứng cút, thịt bò khô, chả viên, rau thơm và hành phi thơm nức mũi."
+  },
+  {
+    id: "chan-ga",
+    name: "Chân Gà Sốt Thái Xoài Cóc",
+    category: "hot",
+    price: 35000,
+    image: "images/img_04.jpg",
+    badge: "CỰC CUỐN",
+    badgeType: "hot",
+    description: "Chân gà giòn sần sật rút xương, ngập trong sốt Thái chua cay tê lưỡi, thơm mùi sả quất và quả xoài, cóc tươi giòn rụm."
+  },
+  {
+    id: "my-cay",
+    name: "Mỳ Cay 7 Cấp Độ Hải Sản/Bò",
+    category: "hot",
+    price: 35000,
+    image: "images/img_05.jpg",
+    badge: "CAY TÊ",
+    badgeType: "hot",
+    description: "Nước dùng chua cay kim chi đậm đà, tôm sú tươi, xúc xích, mực viên, nấm kim châm và rau cải tươi mát kích thích vị giác."
+  },
+  {
+    id: "tra-sua",
+    name: "Trà Sữa Trân Châu Đường Đen",
+    category: "cold",
+    price: 25000,
+    image: "images/img_01.jpg",
+    badge: "THƠM BÉO",
+    badgeType: "cold",
+    description: "Trà sữa pha mới đậm vị trà thơm lừng, ngọt thanh dịu nhẹ, trân châu dẻo dai nấu đường đen ấm nóng ngậy béo."
+  },
+  {
+    id: "che-dua-dam",
+    name: "Chè Dừa Dầm Hải Phòng",
+    category: "cold",
+    price: 25000,
+    image: "images/img_03.jpg",
+    badge: "THANH MÁT",
+    badgeType: "cold",
+    description: "Cơm dừa non giòn bùi, thạch dừa thanh mát, trân châu dừa nhân cùi dừa tươi chan đẫm sữa dừa béo ngậy đặc biệt."
+  },
+  {
+    id: "banh-mi-chao",
+    name: "Bánh Mì Chảo Thập Cẩm",
+    category: "hot",
+    price: 35000,
+    image: "images/img_09.jpg",
+    badge: "NÓNG GIÒN",
+    badgeType: "hot",
+    description: "Chảo sốt nóng hổi xèo xèo gồm trứng ốp la lòng đào, pate béo ngậy, xúc xích rán giòn, chả lụa kèm bánh mì giòn tan."
+  },
+  {
+    id: "ga-ran-kimbap",
+    name: "Mẹt Đồ Chiên & Gà Rán Cay",
+    category: "hot",
+    price: 45000,
+    image: "images/img_08.jpg",
+    badge: "GIÒN RỤM",
+    badgeType: "hot",
+    description: "Gà rán sốt cay Hàn Quốc đậm vị, nem chua rán béo ngậy, xúc xích và khoai tây lắc phô mai giòn rụm chấm tương ớt cay."
+  },
+  {
+    id: "tao-pho-caramen",
+    name: "Tào Phớ Caramen Thạch Trắng",
+    category: "cold",
+    price: 20000,
+    image: "images/img_10.jpg",
+    badge: "MỀM MƯỚT",
+    badgeType: "cold",
+    description: "Tào phớ mướt mịn tự làm từ đậu nành nguyên chất, nước đường hoa nhài thanh dịu kết hợp bánh caramen béo ngậy thơm ngon."
+  },
+  {
+    id: "sua-chua-mit",
+    name: "Sữa Chua Mít Hạt Đác Rim",
+    category: "cold",
+    price: 25000,
+    image: "images/img_10.jpg",
+    badge: "GIẢI NHIỆT",
+    badgeType: "cold",
+    description: "Mít dai ngọt thơm lừng, sữa chua lên men tự nhiên, trân châu giòn sần sật và hạt đác rim đường phèn dẻo bùi."
+  },
+  {
+    id: "tra-chanh-quat",
+    name: "Trà Chanh Giã Tay & Nước Ép",
+    category: "cold",
+    price: 20000,
+    image: "images/img_13.jpg",
+    badge: "TƯƠI MÁT",
+    badgeType: "cold",
+    description: "Trà chanh Quảng Đông thơm nồng tinh dầu chanh giã tay tươi mới, chua thanh ngọt mát giải ngấy tức thì."
+  },
+  {
+    id: "pack-nem-nuong",
+    name: "Nem Nướng Túi Hút Chân Không",
+    category: "pack",
+    price: 95000,
+    image: "images/img_14.jpg",
+    badge: "CHUẨN ATTP",
+    badgeType: "hot",
+    description: "Gói nem nướng Nha Trang đóng gói vô trùng hút chân không (10 xiên lớn), có tem mác ATTP và tặng kèm túi nước chấm gia truyền."
+  },
+  {
+    id: "pack-nem-lui",
+    name: "Nem Lụi Huế Que Sả Hút Chân Không",
+    category: "pack",
+    price: 95000,
+    image: "images/img_15.jpg",
+    badge: "CHUẨN ATTP",
+    badgeType: "hot",
+    description: "Gói nem lụi bọc que sả tươi đóng gói hút chân không (10 que), có nhãn mác rõ ràng, tặng kèm túi nước lèo đậu phộng thơm bùi."
+  }
 ];
 
-let cart = [];
+// Shopping Cart State (saved to LocalStorage)
+let cart = {};
 
-// DOM Elements
-document.addEventListener("DOMContentLoaded", () => {
-    initProducts("all");
-    initCategoryTabs();
-    initCartDrawer();
-    initLeadForm();
-    initLeadsTable();
-    initReviewsSystem();
-    initMobileNav();
+// Filter & Search State
+let activeCategory = 'all';
+let searchQuery = '';
+let currentCustomizingId = null;
+
+// Initialize App
+document.addEventListener('DOMContentLoaded', () => {
+  loadCartFromStorage();
+  updateCategoryCounts();
+  renderMenu();
+  updateCartUI();
+  initStoreHours();
+  initReviewsSystem();
 });
 
-// Format currency (VND)
+// Format VND Money
 function formatMoney(amount) {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
 }
 
-// Render Products
-function initProducts(category) {
-    const grid = document.getElementById("products-grid");
-    if (!grid) return;
+// Check Opening Hours (09:00 - 22:30)
+function initStoreHours() {
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const time = hours + minutes / 60;
+  const statusDot = document.querySelector('.status-dot');
+  const statusText = document.getElementById('statusText');
 
-    const filtered = category === "all" ? PRODUCTS : PRODUCTS.filter(p => p.cat === category);
-    
-    grid.innerHTML = filtered.map(item => `
-        <div class="product-card">
-            <div class="product-img-wrapper">
-                <img src="${item.img}" alt="${item.name}" class="product-img" loading="lazy">
-                <span class="product-tag">${item.tag}</span>
-            </div>
-            <div class="product-info">
-                <h3 class="product-title">${item.name}</h3>
-                <p class="product-desc">${item.desc}</p>
-                <div class="product-bottom">
-                    <span class="product-price">${formatMoney(item.price)}</span>
-                    <button class="btn-add-cart" onclick="addToCart(${item.id})">
-                        <i class="fa-solid fa-plus"></i> Chọn Món
-                    </button>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-// Category Tabs
-function initCategoryTabs() {
-    const tabs = document.querySelectorAll(".cat-btn");
-    tabs.forEach(tab => {
-        tab.addEventListener("click", () => {
-            tabs.forEach(t => t.classList.remove("active"));
-            tab.classList.add("active");
-            const cat = tab.getAttribute("data-cat");
-            initProducts(cat);
-        });
-    });
-}
-
-// Cart Logic
-window.addToCart = function(productId) {
-    const product = PRODUCTS.find(p => p.id === productId);
-    if (!product) return;
-
-    const existing = cart.find(item => item.id === productId);
-    if (existing) {
-        existing.qty += 1;
+  if (statusText && statusDot) {
+    if (time >= 9 && time <= 22.5) {
+      statusDot.style.background = '#27AE60';
+      statusText.textContent = 'Đang mở cửa phục vụ nóng hổi • 09:00 - 22:30';
     } else {
-        cart.push({ ...product, qty: 1 });
+      statusDot.style.background = '#E67E22';
+      statusText.textContent = 'Tiệm nhận đặt trước cho ngày mai • Mở cửa lúc 09:00';
     }
+  }
+}
 
-    updateCartUI();
-    openCartDrawer();
-};
+// Update category item counts
+function updateCategoryCounts() {
+  const allCount = MENU_DATA.length;
+  const hotCount = MENU_DATA.filter(i => i.category === 'hot').length;
+  const coldCount = MENU_DATA.filter(i => i.category === 'cold').length;
+  const packCount = MENU_DATA.filter(i => i.category === 'pack').length;
+
+  if (document.getElementById('countAll')) document.getElementById('countAll').textContent = allCount;
+  if (document.getElementById('countHot')) document.getElementById('countHot').textContent = hotCount;
+  if (document.getElementById('countCold')) document.getElementById('countCold').textContent = coldCount;
+  if (document.getElementById('countPack')) document.getElementById('countPack').textContent = packCount;
+}
+
+// Render Menu Items
+function renderMenu() {
+  const container = document.getElementById('menuGridContainer');
+  const emptyState = document.getElementById('menuEmptyState');
+  if (!container) return;
+
+  const filtered = MENU_DATA.filter(item => {
+    const matchCategory = (activeCategory === 'all') || (item.category === activeCategory);
+    const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        item.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchCategory && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = '';
+    if (emptyState) emptyState.style.display = 'block';
+    return;
+  }
+
+  if (emptyState) emptyState.style.display = 'none';
+
+  container.innerHTML = filtered.map(item => `
+    <div class="menu-card" data-id="${item.id}">
+      <div class="menu-card-img-wrap" onclick="openLightbox('${item.image}', '${item.name}')">
+        ${item.badge ? `<span class="menu-card-tag badge-${item.badgeType}">${item.badge}</span>` : ''}
+        <img src="${item.image}" alt="${item.name}" loading="lazy">
+      </div>
+      <div class="menu-card-body">
+        <h4 class="menu-card-title">${item.name}</h4>
+        <p class="menu-card-desc">${item.description}</p>
+        <div class="menu-card-footer">
+          <span class="menu-card-price">${formatMoney(item.price)}</span>
+          <button class="btn-card-add" onclick="addToCart('${item.id}')">
+            <i class="fa-solid fa-plus"></i> Chọn Món
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Category Filter Actions
+function filterCategory(category) {
+  activeCategory = category;
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    if (btn.getAttribute('data-category') === category) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  renderMenu();
+}
+
+function filterAndScroll(category) {
+  filterCategory(category);
+  const menuEl = document.getElementById('menu');
+  if (menuEl) {
+    menuEl.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+// Search Actions
+function handleSearch(val) {
+  searchQuery = val.trim();
+  const clearBtn = document.getElementById('clearSearchBtn');
+  if (clearBtn) {
+    clearBtn.style.display = searchQuery ? 'block' : 'none';
+  }
+  renderMenu();
+}
+
+function clearSearch() {
+  const input = document.getElementById('menuSearchInput');
+  if (input) {
+    input.value = '';
+    handleSearch('');
+  }
+}
+
+// ==========================================================================
+// CART OPERATIONS
+// ==========================================================================
+
+function loadCartFromStorage() {
+  try {
+    const saved = localStorage.getItem('tiemchena_cart');
+    if (saved) {
+      cart = JSON.parse(saved);
+    }
+  } catch (e) {
+    cart = {};
+  }
+}
+
+function saveCartToStorage() {
+  try {
+    localStorage.setItem('tiemchena_cart', JSON.stringify(cart));
+  } catch (e) {}
+}
+
+function addToCart(itemId, note = '') {
+  const item = MENU_DATA.find(i => i.id === itemId);
+  if (!item) return;
+
+  const cartKey = itemId + (note ? '_' + note : '');
+
+  if (cart[cartKey]) {
+    cart[cartKey].qty++;
+  } else {
+    cart[cartKey] = {
+      id: itemId,
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      note: note,
+      qty: 1
+    };
+  }
+
+  saveCartToStorage();
+  updateCartUI();
+  showToast(`Đã thêm "${item.name}" vào giỏ!`);
+}
+
+function updateCartQty(cartKey, change) {
+  if (!cart[cartKey]) return;
+
+  cart[cartKey].qty += change;
+  if (cart[cartKey].qty <= 0) {
+    delete cart[cartKey];
+  }
+
+  saveCartToStorage();
+  updateCartUI();
+}
 
 function updateCartUI() {
-    const countBadge = document.getElementById("cart-count");
-    const container = document.getElementById("cart-items-container");
-    const subtotal = document.getElementById("cart-subtotal");
-    const noteInput = document.getElementById("lead-note");
+  const keys = Object.keys(cart);
+  let totalCount = 0;
+  let subtotal = 0;
 
-    const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
-    const totalPrice = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+  keys.forEach(k => {
+    totalCount += cart[k].qty;
+    subtotal += cart[k].price * cart[k].qty;
+  });
 
-    if (countBadge) countBadge.textContent = totalQty;
-    if (subtotal) subtotal.textContent = formatMoney(totalPrice);
+  // Calculate 5% discount promo
+  const discount = Math.round(subtotal * 0.05);
+  const finalTotal = subtotal - discount;
 
-    if (!container) return;
+  // Header & Mobile Badges
+  const cartBadge = document.getElementById('cartBadge');
+  const mobileCartCount = document.getElementById('mobileCartCount');
+  const mobileCartTotal = document.getElementById('mobileCartTotal');
+  const cartDrawerCount = document.getElementById('cartDrawerCount');
 
-    if (cart.length === 0) {
-        container.innerHTML = '<p class="empty-cart-msg">Giỏ hàng của bạn đang trống. Hãy chọn món chè yêu thích nhé!</p>';
+  if (cartBadge) cartBadge.textContent = totalCount;
+  if (mobileCartCount) mobileCartCount.textContent = totalCount;
+  if (mobileCartTotal) mobileCartTotal.textContent = formatMoney(finalTotal > 0 ? finalTotal : 0);
+  if (cartDrawerCount) cartDrawerCount.textContent = `(${totalCount} món)`;
+
+  // Summary fields
+  const subtotalEl = document.getElementById('cartSubtotal');
+  const discountEl = document.getElementById('cartDiscount');
+  const finalTotalEl = document.getElementById('cartFinalTotal');
+
+  if (subtotalEl) subtotalEl.textContent = formatMoney(subtotal);
+  if (discountEl) discountEl.textContent = '-' + formatMoney(discount);
+  if (finalTotalEl) finalTotalEl.textContent = formatMoney(finalTotal > 0 ? finalTotal : 0);
+
+  // Render items list inside drawer
+  const cartList = document.getElementById('cartItemsList');
+  const cartFooter = document.getElementById('cartFooter');
+
+  if (cartList) {
+    if (keys.length === 0) {
+      cartList.innerHTML = `
+        <div class="cart-empty-box">
+          <i class="fa-solid fa-cart-arrow-down"></i>
+          <h4>Giỏ hàng của bạn đang trống!</h4>
+          <p>Hãy chọn những món ăn vặt giòn ngon hoặc chè thanh mát ở menu nhé.</p>
+          <button class="btn btn-primary btn-sm mt-4" onclick="closeCartDrawer()">Xem Menu Ngay</button>
+        </div>
+      `;
+      if (cartFooter) cartFooter.style.display = 'none';
     } else {
-        container.innerHTML = cart.map(item => `
-            <div class="cart-item">
-                <div>
-                    <div class="cart-item-title">${item.name}</div>
-                    <div class="cart-item-price">${formatMoney(item.price)}</div>
-                </div>
-                <div class="cart-item-qty">
-                    <button class="qty-btn" onclick="changeQty(${item.id}, -1)">-</button>
-                    <span>${item.qty}</span>
-                    <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
-                </div>
+      if (cartFooter) cartFooter.style.display = 'block';
+      cartList.innerHTML = keys.map(k => {
+        const it = cart[k];
+        return `
+          <div class="cart-item-row">
+            <img src="${it.image}" alt="${it.name}" class="cart-item-thumb">
+            <div class="cart-item-details">
+              <div class="cart-item-name">${it.name}</div>
+              ${it.note ? `<div class="cart-item-note"><i class="fa-solid fa-pen"></i> ${it.note}</div>` : ''}
+              <div class="cart-item-price">${formatMoney(it.price * it.qty)}</div>
             </div>
-        `).join('');
-
-        // Pre-fill lead form note with cart items
-        if (noteInput) {
-            const summary = cart.map(i => `${i.qty}x ${i.name}`).join(", ");
-            noteInput.value = `Đặt món: ${summary} (Tổng: ${formatMoney(totalPrice)})`;
-        }
+            <div class="cart-qty-ctrl">
+              <button class="qty-btn" onclick="updateCartQty('${k}', -1)" title="Giảm">-</button>
+              <span class="qty-val">${it.qty}</span>
+              <button class="qty-btn" onclick="updateCartQty('${k}', 1)" title="Tăng">+</button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
+  }
 }
 
-window.changeQty = function(id, delta) {
-    const item = cart.find(i => i.id === id);
-    if (!item) return;
-
-    item.qty += delta;
-    if (item.qty <= 0) {
-        cart = cart.filter(i => i.id !== id);
-    }
-    updateCartUI();
-};
-
-function initCartDrawer() {
-    const toggleBtn = document.getElementById("cart-toggle-btn");
-    const closeBtn = document.getElementById("cart-close-btn");
-    const overlay = document.getElementById("cart-drawer-overlay");
-    const checkoutBtn = document.getElementById("btn-checkout-cart");
-
-    if (toggleBtn) toggleBtn.addEventListener("click", openCartDrawer);
-    if (closeBtn) closeBtn.addEventListener("click", closeCartDrawer);
-    if (overlay) overlay.addEventListener("click", closeCartDrawer);
-    if (checkoutBtn) {
-        checkoutBtn.addEventListener("click", () => {
-            closeCartDrawer();
-        });
-    }
-}
-
+// Drawer Toggle
 function openCartDrawer() {
-    const drawer = document.getElementById("cart-drawer");
-    const overlay = document.getElementById("cart-drawer-overlay");
-    if (drawer) drawer.classList.add("active");
-    if (overlay) overlay.classList.add("active");
+  const backdrop = document.getElementById('cartBackdrop');
+  if (backdrop) backdrop.classList.add('active');
+  document.body.style.overflow = 'hidden';
 }
 
 function closeCartDrawer() {
-    const drawer = document.getElementById("cart-drawer");
-    const overlay = document.getElementById("cart-drawer-overlay");
-    if (drawer) drawer.classList.remove("active");
-    if (overlay) overlay.classList.remove("active");
+  const backdrop = document.getElementById('cartBackdrop');
+  if (backdrop) backdrop.classList.remove('active');
+  document.body.style.overflow = '';
 }
 
-// Bank Account & VietQR Configuration
-const BANK_CONFIG = {
-    bankId: "MB", // Ngân hàng Quân Đội MB (BIN: 970422)
-    bankName: "MB Bank (Ngân hàng Quân Đội)",
-    accountNumber: "836888181",
-    accountHolder: "HỘ KINH DOANH TIỆM CHÈ NA",
-    accountHolderRaw: "HO KINH DOANH TIEM CHE NA",
-    template: "compact2"
-};
-
-// Lead & Order Capture System
-const ZALO_OWNER_PHONE = "0986479285";
-
-function getVietQrUrl(amount = 0, memo = "") {
-    let url = `https://img.vietqr.io/image/${BANK_CONFIG.bankId}-${BANK_CONFIG.accountNumber}-${BANK_CONFIG.template}.png`;
-    const params = [];
-    if (amount > 0) {
-        params.push(`amount=${amount}`);
-    }
-    if (memo) {
-        params.push(`addInfo=${encodeURIComponent(memo)}`);
-    }
-    params.push(`accountName=${encodeURIComponent(BANK_CONFIG.accountHolderRaw)}`);
-    return `${url}?${params.join("&")}`;
+function handleBackdropClick(e) {
+  if (e.target.id === 'cartBackdrop') {
+    closeCartDrawer();
+  }
 }
 
-window.copyTextToClipboard = function(text, btnElement, successMsg = "Đã chép") {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-            if (btnElement) {
-                const originalHtml = btnElement.innerHTML;
-                btnElement.innerHTML = `<i class="fa-solid fa-check"></i> ${successMsg}`;
-                btnElement.style.background = "#059669";
-                btnElement.style.color = "#ffffff";
-                setTimeout(() => {
-                    btnElement.innerHTML = originalHtml;
-                    btnElement.style.background = "";
-                    btnElement.style.color = "";
-                }, 2000);
-            }
-        }).catch(() => {
-            prompt("Nhấn Ctrl+C để sao chép:", text);
-        });
+// ==========================================================================
+// ITEM CUSTOMIZATION MODAL
+// ==========================================================================
+
+function openCustomizeModal(itemId) {
+  const item = MENU_DATA.find(i => i.id === itemId);
+  if (!item) return;
+
+  currentCustomizingId = itemId;
+  const modalBackdrop = document.getElementById('customizeModalBackdrop');
+  const title = document.getElementById('custItemTitle');
+  const body = document.getElementById('custModalBody');
+  const saveBtn = document.getElementById('custSaveBtn');
+
+  if (title) title.textContent = `Tùy chọn: ${item.name}`;
+
+  let optionsHtml = '';
+  if (item.category === 'hot') {
+    optionsHtml = `
+      <div class="form-group">
+        <label><strong>Độ Cay / Gia Vị:</strong></label>
+        <select id="custSpiceOption" class="form-input" style="margin-top:6px;">
+          <option value="Cay vừa (Mặc định)">Cay vừa (Chuẩn vị ngon)</option>
+          <option value="Không cay / Ít cay">Không cay / Ít cay</option>
+          <option value="Cay nhiều (Tê lưỡi)">Cay nhiều (Tê lưỡi)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label><strong>Ghi chú riêng:</strong></label>
+        <input type="text" id="custCustomNote" class="form-input" placeholder="VD: Thêm nhiều ram giòn, nhiều nước sốt..." style="margin-top:6px;">
+      </div>
+    `;
+  } else if (item.category === 'cold') {
+    optionsHtml = `
+      <div class="form-group">
+        <label><strong>Lượng Đá:</strong></label>
+        <select id="custIceOption" class="form-input" style="margin-top:6px;">
+          <option value="Đá riêng (Mặc định)">Đá để riêng (Giữ trọn vị)</option>
+          <option value="Đá chung (Ăn ngay)">Đá chung (Ăn ngay)</option>
+          <option value="Ít đá">Ít đá</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label><strong>Ghi chú riêng:</strong></label>
+        <input type="text" id="custCustomNote" class="form-input" placeholder="VD: Ít ngọt, thêm cốt dừa..." style="margin-top:6px;">
+      </div>
+    `;
+  } else {
+    optionsHtml = `
+      <div class="form-group">
+        <label><strong>Ghi chú đơn hàng:</strong></label>
+        <input type="text" id="custCustomNote" class="form-input" placeholder="VD: Cần gấp trong 20 phút..." style="margin-top:6px;">
+      </div>
+    `;
+  }
+
+  if (body) body.innerHTML = optionsHtml;
+
+  if (saveBtn) {
+    saveBtn.onclick = () => {
+      let notes = [];
+      const spice = document.getElementById('custSpiceOption');
+      const ice = document.getElementById('custIceOption');
+      const customNote = document.getElementById('custCustomNote');
+
+      if (spice && spice.value) notes.push(spice.value);
+      if (ice && ice.value) notes.push(ice.value);
+      if (customNote && customNote.value.trim()) notes.push(customNote.value.trim());
+
+      addToCart(currentCustomizingId, notes.join(' • '));
+      closeCustomizeModal();
+    };
+  }
+
+  if (modalBackdrop) modalBackdrop.classList.add('active');
+}
+
+function closeCustomizeModal() {
+  const modalBackdrop = document.getElementById('customizeModalBackdrop');
+  if (modalBackdrop) modalBackdrop.classList.remove('active');
+}
+
+function handleCustomizeBackdropClick(e) {
+  if (e.target.id === 'customizeModalBackdrop') {
+    closeCustomizeModal();
+  }
+}
+
+// ==========================================================================
+// GPS LOCATION HELPER FOR CART CHECKOUT
+// ==========================================================================
+
+function getCartGpsLocation() {
+  const btn = document.getElementById('btnGetCartGps');
+  const mapInput = document.getElementById('orderCustomerMapUrl');
+  const addressInput = document.getElementById('orderCustomerAddress');
+
+  if (!navigator.geolocation) {
+    if (typeof showToast === 'function') {
+      showToast('Trình duyệt không hỗ trợ định vị GPS tự động.', 'warning');
     } else {
-        prompt("Nhấn Ctrl+C để sao chép:", text);
+      alert('Trình duyệt không hỗ trợ GPS');
     }
-};
+    return;
+  }
 
-function initLeadForm() {
-    const form = document.getElementById("lead-form");
-    const successBox = document.getElementById("lead-success-msg");
-    const invoicePreview = document.getElementById("invoice-preview");
-    const sendZaloBtn = document.getElementById("btn-send-zalo-invoice");
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Lấy GPS...';
+    btn.disabled = true;
+  }
 
-    if (!form) return;
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      const mapsUrl = `https://www.google.com/maps?q=${lat.toFixed(6)},${lng.toFixed(6)}`;
 
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        
-        const name = document.getElementById("lead-name").value.trim();
-        const phone = document.getElementById("lead-phone").value.trim();
-        const address = document.getElementById("lead-address").value.trim();
-        const note = document.getElementById("lead-note").value.trim();
+      if (mapInput) {
+        mapInput.value = mapsUrl;
+      }
 
-        if (!name || !phone) {
-            alert("Vui lòng nhập họ tên và số điện thoại.");
-            return;
-        }
+      if (btn) {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Đã lấy';
+        btn.classList.add('btn-gps-success');
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+          btn.disabled = false;
+        }, 3000);
+      }
 
-        const orderCode = "NA" + Math.floor(100000 + Math.random() * 900000);
-        const orderTime = new Date().toLocaleString('vi-VN');
+      if (typeof showToast === 'function') {
+        showToast('📍 Đã lấy vị trí GPS Google Maps thành công!');
+      }
 
-        let cartSummary = "";
-        let totalPrice = 0;
-
-        if (cart.length > 0) {
-            cartSummary = cart.map(i => `${i.qty}x ${i.name} (${formatMoney(i.price * i.qty)})`).join("\n • ");
-            totalPrice = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-        }
-
-        const discount = totalPrice > 0 ? 20000 : 0;
-        const finalPrice = Math.max(0, totalPrice - discount);
-        const transferMemo = `TIEMCHENA ${orderCode}`;
-        const qrImageUrl = getVietQrUrl(finalPrice, transferMemo);
-
-        const newLead = {
-            id: Date.now(),
-            orderCode: orderCode,
-            time: orderTime,
-            name: name,
-            phone: phone,
-            address: address || "Chưa cung cấp",
-            note: note || (cart.length > 0 ? `Đơn hàng: ${cart.map(i => `${i.qty}x ${i.name}`).join(", ")}` : "Đăng ký nhận Voucher 20K & Ebook"),
-            total: totalPrice > 0 ? formatMoney(finalPrice) : "Nhận ưu đãi 20k",
-            status: "Đã gửi qua Zalo"
-        };
-
-        // Save lead/order to localStorage
-        saveLead(newLead);
-
-        // Build invoice plain-text for Zalo message
-        let zaloMessage = `🧾 ĐƠN HÀNG MỚI - TIỆM CHÈ NA\n`;
-        zaloMessage += `--------------------------------\n`;
-        zaloMessage += `🔖 Mã đơn: #${orderCode}\n`;
-        zaloMessage += `⏰ Thời gian: ${orderTime}\n`;
-        zaloMessage += `👤 Khách hàng: ${name}\n`;
-        zaloMessage += `📞 Số điện thoại: ${phone}\n`;
-        zaloMessage += `📍 Địa chỉ: ${address || "Giao tận nơi (sẽ báo cụ thể)"}\n`;
-        if (cart.length > 0) {
-            zaloMessage += `🥣 Món đã chọn:\n • ${cartSummary}\n`;
-            zaloMessage += `💰 Tạm tính: ${formatMoney(totalPrice)}\n`;
-            zaloMessage += `🎁 Voucher: -20.000đ (TIEMCHENA20K)\n`;
-            zaloMessage += `👉 TỔNG THANH TOÁN: ${formatMoney(finalPrice)}\n`;
-        }
-        if (note) {
-            zaloMessage += `📝 Ghi chú: ${note}\n`;
-        }
-        zaloMessage += `--------------------------------\n`;
-        zaloMessage += `💳 THÔNG TIN CHUYỂN KHOẢN (MB BANK):\n`;
-        zaloMessage += ` • Ngân hàng: ${BANK_CONFIG.bankName}\n`;
-        zaloMessage += ` • Số tài khoản: ${BANK_CONFIG.accountNumber}\n`;
-        zaloMessage += ` • Chủ tài khoản: ${BANK_CONFIG.accountHolder}\n`;
-        if (finalPrice > 0) {
-            zaloMessage += ` • Số tiền: ${formatMoney(finalPrice)}\n`;
-            zaloMessage += ` • Nội dung CK: ${transferMemo}\n`;
-        }
-        zaloMessage += `--------------------------------\n`;
-        zaloMessage += `Tiệm Chè Na vui lòng xác nhận và chuẩn bị đơn giúp mình nhé!`;
-
-        // Render Invoice Preview in HTML
-        if (invoicePreview) {
-            invoicePreview.innerHTML = `
-                <div style="font-weight: 700; color: #0f172a; margin-bottom: 10px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-                    <span>Mã Đơn: <span style="color: #047857; font-weight: 800;">#${orderCode}</span></span>
-                    <span style="color: #64748b; font-size: 0.85rem;">${orderTime}</span>
-                </div>
-                <div style="line-height: 1.6;">
-                    <div><strong>Khách hàng:</strong> ${escapeHtml(name)} - <strong>SĐT:</strong> ${escapeHtml(phone)}</div>
-                    <div><strong>Địa chỉ:</strong> ${escapeHtml(address || "Chưa cung cấp")}</div>
-                    ${cart.length > 0 ? `
-                        <div style="margin-top: 10px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                            <strong style="color: #047857;">Món đã chọn:</strong>
-                            <ul style="margin: 4px 0 6px 18px; padding: 0;">
-                                ${cart.map(i => `<li>${i.qty}x ${escapeHtml(i.name)}: <strong>${formatMoney(i.price * i.qty)}</strong></li>`).join('')}
-                            </ul>
-                            <div style="font-size: 0.85rem; color: #64748b;">Ưu đãi Voucher: <strong>-20.000đ</strong></div>
-                            <div style="font-size: 1.1rem; font-weight: 800; color: #dc2626; margin-top: 4px;">Tổng cộng: ${formatMoney(finalPrice)}</div>
-                        </div>
-                    ` : ''}
-                    ${note ? `<div style="margin-top: 8px; font-style: italic; color: #475569;"><strong>Ghi chú:</strong> ${escapeHtml(note)}</div>` : ''}
-                </div>
-
-                <!-- QR Code & Bank Transfer Section -->
-                <div class="qr-payment-card" style="margin-top: 14px; background: #ffffff; border: 1.5px solid #10b981; border-radius: 12px; padding: 14px; box-shadow: 0 4px 12px rgba(16,185,129,0.1);">
-                    <div style="font-weight: 700; color: #065f46; font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-qrcode" style="font-size: 1.15rem; color: #059669;"></i>
-                        <span>Quét mã QR Chuyển khoản (VietQR MB Bank)</span>
-                    </div>
-                    
-                    <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
-                        <div style="text-align: center; flex-shrink: 0; margin: 0 auto;">
-                            <img src="${qrImageUrl}" alt="VietQR MB Bank ${BANK_CONFIG.accountNumber}" style="width: 170px; height: 170px; object-fit: contain; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-                            <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Quét nhanh bằng App Ngân hàng / MoMo</div>
-                        </div>
-
-                        <div style="flex: 1; min-width: 200px; font-size: 0.88rem; line-height: 1.65; color: #1e293b;">
-                            <div style="margin-bottom: 6px;">
-                                <span style="color: #64748b; font-size: 0.8rem;">Ngân hàng:</span><br>
-                                <strong style="color: #0f172a; font-weight: 700;">${BANK_CONFIG.bankName}</strong>
-                            </div>
-
-                            <div style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; background: #f1f5f9; padding: 4px 8px; border-radius: 6px;">
-                                <div>
-                                    <span style="color: #64748b; font-size: 0.75rem;">Số tài khoản:</span><br>
-                                    <strong style="color: #047857; font-size: 1.05rem; letter-spacing: 0.5px;">${BANK_CONFIG.accountNumber}</strong>
-                                </div>
-                                <button type="button" onclick="copyTextToClipboard('${BANK_CONFIG.accountNumber}', this, 'Đã chép')" style="border: none; background: #059669; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
-                                    <i class="fa-regular fa-copy"></i> Chép STK
-                                </button>
-                            </div>
-
-                            <div style="margin-bottom: 6px;">
-                                <span style="color: #64748b; font-size: 0.8rem;">Chủ tài khoản:</span><br>
-                                <strong style="color: #0f172a; text-transform: uppercase;">${BANK_CONFIG.accountHolder}</strong>
-                            </div>
-
-                            ${finalPrice > 0 ? `
-                                <div style="display: flex; justify-content: space-between; align-items: center; background: #fef2f2; padding: 4px 8px; border-radius: 6px; border: 1px dashed #fca5a5;">
-                                    <div>
-                                        <span style="color: #991b1b; font-size: 0.75rem;">Nội dung CK:</span><br>
-                                        <strong style="color: #dc2626; font-size: 0.95rem;">${transferMemo}</strong>
-                                    </div>
-                                    <button type="button" onclick="copyTextToClipboard('${transferMemo}', this, 'Đã chép')" style="border: none; background: #dc2626; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
-                                        <i class="fa-regular fa-copy"></i> Chép mã
-                                    </button>
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Setup Zalo Direct Link with Owner Number 0986479285
-        if (sendZaloBtn) {
-            sendZaloBtn.href = `https://zalo.me/${ZALO_OWNER_PHONE}`;
-            sendZaloBtn.onclick = () => {
-                // Copy invoice to clipboard for convenience
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(zaloMessage).then(() => {
-                        // Copied
-                    }).catch(() => {});
-                }
-            };
-        }
-
-        // Show success and invoice
-        form.classList.add("hidden");
-        if (successBox) successBox.classList.remove("hidden");
-
-        // Copy bill content automatically to clipboard so the user can easily paste into Zalo chat
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(zaloMessage).catch(() => {});
-        }
-
-        // Refresh lead table
-        initLeadsTable();
-    });
-}
-
-function saveLead(lead) {
-    let leads = JSON.parse(localStorage.getItem("tiemchena_leads") || "[]");
-    leads.unshift(lead);
-    localStorage.setItem("tiemchena_leads", JSON.stringify(leads));
-}
-
-function initLeadsTable() {
-    const tbody = document.getElementById("leads-tbody");
-    if (!tbody) return;
-
-    let leads = JSON.parse(localStorage.getItem("tiemchena_leads") || "[]");
-
-    // Prepopulate with a verified sample real lead if empty for Day 4 proof
-    if (leads.length === 0) {
-        leads = [
-            {
-                id: 1,
-                time: new Date().toLocaleString('vi-VN'),
-                name: "Nguyễn Thu Trang (Bạn học)",
-                phone: "0912 345 678",
-                address: "Ngõ 165 Cầu Giấy, Hà Nội",
-                note: "Đặt thử 2 phần Chè Bưởi + áp voucher 20k",
-                status: "Đã liên hệ"
+      // Reverse geocode suggestion if address is blank
+      if (addressInput && !addressInput.value.trim()) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.display_name && !addressInput.value.trim()) {
+              addressInput.value = data.display_name;
             }
-        ];
-        localStorage.setItem("tiemchena_leads", JSON.stringify(leads));
-    }
-
-    tbody.innerHTML = leads.map(l => `
-        <tr style="border-bottom: 1px solid #f1f5f9;">
-            <td style="padding: 10px; color: #64748b; font-size: 0.82rem;">${l.time}</td>
-            <td style="padding: 10px; font-weight: 700; color: #0f172a;">${l.name}</td>
-            <td style="padding: 10px; color: #059669; font-weight: 600;">${l.phone}</td>
-            <td style="padding: 10px; color: #475569;">${l.address}</td>
-            <td style="padding: 10px; color: #334155;">${l.note}</td>
-            <td style="padding: 10px;">
-                <span style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 700;">
-                    ${l.status}
-                </span>
-            </td>
-        </tr>
-    `).join('');
-
-    // Export Leads handler
-    const exportBtn = document.getElementById("btn-export-leads");
-    if (exportBtn) {
-        exportBtn.onclick = () => {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(leads, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "danh_sach_leads_tiem_che_na.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        };
-    }
-
-    // Clear test leads handler
-    const clearBtn = document.getElementById("btn-clear-leads");
-    if (clearBtn) {
-        clearBtn.onclick = () => {
-            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ danh sách lead test?")) {
-                localStorage.removeItem("tiemchena_leads");
-                initLeadsTable();
-            }
-        };
-    }
-}
-
-// Helper to sanitize HTML
-function escapeHtml(str) {
-    if (!str) return '';
-    return str
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-// Get initials for avatar
-function getInitials(name) {
-    if (!name) return "KH";
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+          })
+          .catch(() => {});
+      }
+    },
+    (error) => {
+      if (btn) {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+      }
+      let msg = 'Không thể lấy GPS. Bạn vui lòng dán đường link từ Google Maps nhé!';
+      if (error.code === error.PERMISSION_DENIED) {
+        msg = 'Bạn đã chặn quyền truy cập vị trí. Hãy dán trực tiếp đường link Google Maps vào ô nhé!';
+      }
+      if (typeof showToast === 'function') {
+        showToast(msg, 'warning');
+      } else {
+        alert(msg);
+      }
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
 }
 
 // ==========================================================================
-// Customer Real Reviews System
+// CHECKOUT & ZALO ORDER CREATOR
 // ==========================================================================
-const RATING_TEXTS = {
-    1: "1 sao - Chưa hài lòng",
-    2: "2 sao - Cần cải thiện thêm",
-    3: "3 sao - Khá ổn, vừa miệng",
-    4: "4 sao - Rất ngon & chất lượng",
-    5: "5 sao - Cực kỳ ngon & hài lòng"
-};
+
+let lastGeneratedZaloOrder = "";
+
+function submitOrderToZalo() {
+  const keys = Object.keys(cart);
+  if (keys.length === 0) {
+    if (typeof showToast === 'function') {
+      showToast('Giỏ hàng của bạn đang trống! Hãy chọn món nhé.', 'warning');
+    } else {
+      alert('Giỏ hàng của bạn đang trống!');
+    }
+    return;
+  }
+
+  const nameInput = document.getElementById('orderCustomerName');
+  const phoneInput = document.getElementById('orderCustomerPhone');
+  const addressInput = document.getElementById('orderCustomerAddress');
+  const mapInput = document.getElementById('orderCustomerMapUrl');
+  const noteInput = document.getElementById('orderCustomerNote');
+
+  const customerName = nameInput ? nameInput.value.trim() : '';
+  const customerPhone = phoneInput ? phoneInput.value.trim() : '';
+  const customerAddress = addressInput ? addressInput.value.trim() : '';
+  const customerMapUrl = mapInput ? mapInput.value.trim() : '';
+  const customerNote = noteInput ? noteInput.value.trim() : '';
+
+  if (!customerPhone || !customerAddress) {
+    if (typeof showToast === 'function') {
+      showToast('Vui lòng điền Số điện thoại & Địa chỉ nhận hàng!', 'warning');
+    } else {
+      alert('Vui lòng điền Số điện thoại & Địa chỉ nhận hàng!');
+    }
+    if (!customerPhone && phoneInput) phoneInput.focus();
+    else if (!customerAddress && addressInput) addressInput.focus();
+    return;
+  }
+
+  let subtotal = 0;
+  let itemsHtml = '';
+  let itemsZaloText = '';
+
+  keys.forEach((k, idx) => {
+    const item = cart[k];
+    if (!item) return;
+    const itemTotal = (item.price || 0) * (item.qty || 1);
+    subtotal += itemTotal;
+    
+    itemsHtml += `
+      <tr>
+        <td class="item-name-cell">
+          <strong>${escapeHtml(item.name || 'Món ăn')}</strong>
+          ${item.note ? `<span class="item-note-sub"><i class="fa-solid fa-tag"></i> ${escapeHtml(item.note)}</span>` : ''}
+        </td>
+        <td class="text-center font-bold">x${item.qty || 1}</td>
+        <td class="text-right">${formatMoney(item.price || 0)}</td>
+        <td class="text-right font-bold">${formatMoney(itemTotal)}</td>
+      </tr>
+    `;
+
+    itemsZaloText += `${idx + 1}. ${item.name} x${item.qty} (${formatMoney(itemTotal)})${item.note ? ` [${item.note}]` : ''}\n`;
+  });
+
+  const discount = Math.round(subtotal * 0.05);
+  const finalTotal = subtotal - discount;
+  const orderCode = '#TCN-' + Math.floor(1000 + Math.random() * 9000);
+  const orderTime = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('vi-VN');
+
+  // Build structured Zalo order message with Google Maps Link
+  lastGeneratedZaloOrder = 
+`🍲 ĐƠN HÀNG TỪ WEBSITE TIỆM CHÈ NA 🍲
+---------------------------------------
+🔖 Mã đơn: ${orderCode} (${orderTime})
+👤 Khách hàng: ${customerName || 'Khách đặt online'}
+📞 Điện thoại: ${customerPhone}
+📍 Địa chỉ: ${customerAddress}
+${customerMapUrl ? `🗺️ Link vị trí Google Maps: ${customerMapUrl}\n` : ''}${customerNote ? `📝 Ghi chú: ${customerNote}\n` : ''}---------------------------------------
+📋 DANH SÁCH MÓN:
+${itemsZaloText}---------------------------------------
+💵 Tạm tính: ${formatMoney(subtotal)}
+🎁 Ưu đãi đặt trước (-5%): -${formatMoney(discount)}
+👉 TỔNG THANH TOÁN: ${formatMoney(finalTotal)}
+---------------------------------------
+💳 MB Bank (Quân Đội) - STK: 836888181 - HỘ KINH DOANH TIỆM CHÈ NA
+(Tiệm Chè Na Vũ Lăng, Ngũ Hiệp • Giao nhanh 30 phút)`;
+
+  // Auto copy to clipboard for immediate convenience
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(lastGeneratedZaloOrder).catch(() => {});
+  }
+
+  // 1. POPULATE INVOICE (HÓA ĐƠN ĐIỆN TỬ)
+  const invCode = document.getElementById('invOrderCode');
+  const invTime = document.getElementById('invOrderTime');
+  const invName = document.getElementById('invCustName');
+  const invPhone = document.getElementById('invCustPhone');
+  const invAddr = document.getElementById('invCustAddress');
+  const invMapWrap = document.getElementById('invMapWrap');
+  const invMapLink = document.getElementById('invCustMapLink');
+  const invNote = document.getElementById('invCustNote');
+  const invNoteWrap = document.getElementById('invNoteWrap');
+  const invTbody = document.getElementById('invItemsTbody');
+  const invSubtotal = document.getElementById('invSubtotal');
+  const invDiscount = document.getElementById('invDiscount');
+  const invFinal = document.getElementById('invFinalTotal');
+
+  if (invCode) invCode.textContent = orderCode;
+  if (invTime) invTime.textContent = orderTime;
+  if (invName) invName.textContent = customerName || 'Khách đặt online';
+  if (invPhone) invPhone.textContent = customerPhone;
+  if (invAddr) invAddr.textContent = customerAddress;
+
+  if (invMapWrap && invMapLink) {
+    if (customerMapUrl) {
+      invMapLink.href = customerMapUrl;
+      invMapWrap.style.display = 'flex';
+    } else {
+      invMapWrap.style.display = 'none';
+    }
+  }
+  
+  if (invNote && invNoteWrap) {
+    if (customerNote) {
+      invNote.textContent = customerNote;
+      invNoteWrap.style.display = 'flex';
+    } else {
+      invNoteWrap.style.display = 'none';
+    }
+  }
+
+  if (invTbody) invTbody.innerHTML = itemsHtml;
+  if (invSubtotal) invSubtotal.textContent = formatMoney(subtotal);
+  if (invDiscount) invDiscount.textContent = '-' + formatMoney(discount);
+  if (invFinal) invFinal.textContent = formatMoney(finalTotal);
+
+  // 2. POPULATE VIETQR PAYMENT CODE
+  const qrImg = document.getElementById('orderQrImage');
+  const qrAmountDisplay = document.getElementById('qrAmountDisplay');
+  const qrAmountValue = document.getElementById('qrAmountValue');
+  const qrContentDisplay = document.getElementById('qrContentDisplay');
+  
+  const cleanPhone = customerPhone.replace(/\s+/g, '');
+  const orderTransferContent = 'TIEMCHENA ' + (cleanPhone ? cleanPhone.slice(-4) : 'ONLINE');
+  const vietQrUrl = `https://img.vietqr.io/image/MB-836888181-compact2.png?amount=${finalTotal}&addInfo=${encodeURIComponent(orderTransferContent)}&accountName=${encodeURIComponent('HO KINH DOANH TIEM CHE NA')}`;
+  
+  if (qrImg) qrImg.src = vietQrUrl;
+  if (qrAmountDisplay) qrAmountDisplay.textContent = formatMoney(finalTotal);
+  if (qrAmountValue) qrAmountValue.value = finalTotal;
+  if (qrContentDisplay) qrContentDisplay.textContent = orderTransferContent;
+
+  // 3. SET ZALO DIRECT LINK
+  const btnZalo = document.getElementById('btnOpenZaloDirect');
+  if (btnZalo) {
+    btnZalo.href = 'https://zalo.me/0986479285';
+    btnZalo.onclick = function() {
+      if (lastGeneratedZaloOrder && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(lastGeneratedZaloOrder).then(() => {
+          if (typeof showToast === 'function') showToast('Đã sao chép đơn! Bạn chỉ cần gửi tin nhắn trên Zalo.');
+        }).catch(() => {});
+      }
+    };
+  }
+
+  // 4. CLOSE CART & OPEN INVOICE MODAL
+  closeCartDrawer();
+
+  const successModal = document.getElementById('orderSuccessModal');
+  if (successModal) {
+    successModal.classList.add('active');
+  }
+
+  // Reset cart
+  cart = {};
+  saveCartToStorage();
+  updateCartUI();
+
+  if (typeof showToast === 'function') {
+    showToast('🎉 Đặt hàng thành công! Hóa đơn đã hiển thị.');
+  }
+}
+
+function copyOrderAgain() {
+  if (lastGeneratedZaloOrder) {
+    try {
+      navigator.clipboard.writeText(lastGeneratedZaloOrder);
+      showToast('Đã sao chép lại đơn hàng!');
+    } catch (e) {
+      showToast('Không thể sao chép tự động.', 'warning');
+    }
+  }
+}
+
+function closeOrderSuccessModal() {
+  const modal = document.getElementById('orderSuccessModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function handleOrderSuccessBackdropClick(e) {
+  if (e.target.id === 'orderSuccessModal') {
+    closeOrderSuccessModal();
+  }
+}
+
+// ==========================================================================
+// LIGHTBOX MODAL
+// ==========================================================================
+
+function openLightbox(imgSrc, caption) {
+  const modal = document.getElementById('lightboxModal');
+  const img = document.getElementById('lightboxImage');
+  const cap = document.getElementById('lightboxCaption');
+
+  if (img) img.src = imgSrc;
+  if (cap) cap.textContent = caption || '';
+  if (modal) modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  const modal = document.getElementById('lightboxModal');
+  if (modal) modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// ==========================================================================
+// TOAST NOTIFICATION UTILITY
+// ==========================================================================
+
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast ${type === 'warning' ? 'toast-warning' : ''}`;
+  toast.innerHTML = `
+    <i class="fa-solid ${type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-check'}"></i>
+    <span>${escapeHtml(message)}</span>
+  `;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    toast.style.transition = 'all 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 2800);
+}
+
+// ==========================================================================
+// REAL CUSTOMER REVIEWS SYSTEM
+// ==========================================================================
+
+const INITIAL_REVIEWS = [
+  {
+    id: 1,
+    name: "Hoàng Yến",
+    location: "KĐT Tứ Hiệp, Thanh Trì",
+    dish: "Nem Nướng Nha Trang Đặc Biệt",
+    rating: 5,
+    comment: "Nem nướng thơm lừng, sốt chấm gia truyền béo bùi chuẩn vị Nha Trang! Đầy đủ rau sống sạch sẽ, bánh tráng và ram giòn rụm. Ship đến nơi vẫn còn ấm nóng.",
+    date: "29/09/2026"
+  },
+  {
+    id: 2,
+    name: "Anh Minh",
+    location: "Vũ Lăng, Ngũ Hiệp",
+    dish: "Chè Xoài Caramen Núng Nính",
+    rating: 5,
+    comment: "Caramen mềm mướt không hề bị rỗ, xoài tươi vàng mọng ngọt lịm. Nước cốt dừa thơm ngậy vừa phải không bị ngọt gắt. Buổi chiều làm cốc chè này tỉnh cả người!",
+    date: "29/09/2026"
+  },
+  {
+    id: 3,
+    name: "Thu Trang",
+    location: "Văn Điển, Thanh Trì",
+    dish: "Mỳ Trộn Sốt Cay Đậm Đà",
+    rating: 5,
+    comment: "Mỳ trộn sốt cay tê rất cuốn, đầy đặn topping trứng cút, khô bò và chả. Quán đóng hộp giấy sạch sẽ và giao nhanh chỉ tầm 20 phút là tới.",
+    date: "28/09/2026"
+  }
+];
 
 function initReviewsSystem() {
-    initStarRatingWidget();
-    initReviewFormToggle();
-    initReviewFormSubmit();
-    renderReviews();
+  initRatingPicker();
+  initReviewFormSubmit();
+  renderReviewsList();
 }
 
-// Interactive Star Rating Selector
-function initStarRatingWidget() {
-    const starContainer = document.getElementById("stars-select");
-    const label = document.getElementById("rating-text-label");
-    const input = document.getElementById("selected-rating-value");
-    if (!starContainer || !input) return;
+function initRatingPicker() {
+  const starsContainer = document.getElementById('starsSelect');
+  const label = document.getElementById('ratingTextLabel');
+  const input = document.getElementById('selectedRatingValue');
+  if (!starsContainer || !input) return;
 
-    const stars = starContainer.querySelectorAll("i");
+  const labels = {
+    1: '1 sao - Cần cải thiện',
+    2: '2 sao - Tạm ổn',
+    3: '3 sao - Khá ngon',
+    4: '4 sao - Rất ngon & hài lòng',
+    5: '5 sao - Cực kỳ ngon & hài lòng'
+  };
 
-    function updateStars(val) {
-        stars.forEach(star => {
-            const r = parseInt(star.getAttribute("data-rating"));
-            if (r <= val) {
-                star.classList.add("active");
-            } else {
-                star.classList.remove("active");
-            }
-        });
-        if (label && RATING_TEXTS[val]) {
-            label.textContent = RATING_TEXTS[val];
-        }
-    }
+  const stars = starsContainer.querySelectorAll('i');
 
-    stars.forEach(star => {
-        star.addEventListener("mouseenter", () => {
-            const hoverVal = parseInt(star.getAttribute("data-rating"));
-            updateStars(hoverVal);
-        });
-
-        star.addEventListener("click", () => {
-            const currentVal = parseInt(star.getAttribute("data-rating"));
-            input.value = currentVal;
-            updateStars(currentVal);
-        });
+  function updateStarsUI(val) {
+    stars.forEach(s => {
+      const r = parseInt(s.getAttribute('data-rating'));
+      if (r <= val) s.classList.add('active');
+      else s.classList.remove('active');
     });
+    if (label && labels[val]) label.textContent = labels[val];
+  }
 
-    starContainer.addEventListener("mouseleave", () => {
-        const savedVal = parseInt(input.value) || 5;
-        updateStars(savedVal);
+  stars.forEach(star => {
+    star.addEventListener('mouseenter', () => {
+      const r = parseInt(star.getAttribute('data-rating'));
+      updateStarsUI(r);
     });
+    star.addEventListener('click', () => {
+      const r = parseInt(star.getAttribute('data-rating'));
+      input.value = r;
+      updateStarsUI(r);
+    });
+  });
+
+  starsContainer.addEventListener('mouseleave', () => {
+    const saved = parseInt(input.value) || 5;
+    updateStarsUI(saved);
+  });
 }
 
-// Toggle Review Form visibility
-function initReviewFormToggle() {
-    const toggleBtn = document.getElementById("btn-toggle-review-form");
-    const wrapper = document.getElementById("review-form-wrapper");
-    const closeBtn = document.getElementById("btn-close-review-form");
-    const cancelBtn = document.getElementById("btn-cancel-review");
+function initReviewFormSubmit() {
+  const form = document.getElementById('customerReviewForm');
+  const alertBox = document.getElementById('reviewSuccessAlert');
+  const toggleBtn = document.getElementById('btnToggleReviewForm');
+  const wrapper = document.getElementById('reviewFormWrapper');
+  const closeBtn = document.getElementById('btnCloseReviewForm');
+  const cancelBtn = document.getElementById('btnCancelReview');
 
-    if (toggleBtn && wrapper) {
-        toggleBtn.addEventListener("click", () => {
-            wrapper.classList.toggle("hidden");
-            if (!wrapper.classList.contains("hidden")) {
-                const nameInput = document.getElementById("review-name");
-                if (nameInput) nameInput.focus();
-            }
-        });
+  if (toggleBtn && wrapper) {
+    toggleBtn.addEventListener('click', () => {
+      wrapper.classList.toggle('hidden');
+      if (!wrapper.classList.contains('hidden')) {
+        const nameInput = document.getElementById('reviewName');
+        if (nameInput) nameInput.focus();
+      }
+    });
+  }
+
+  if (closeBtn && wrapper) closeBtn.addEventListener('click', () => wrapper.classList.add('hidden'));
+  if (cancelBtn && wrapper) cancelBtn.addEventListener('click', () => wrapper.classList.add('hidden'));
+
+  if (!form) return;
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('reviewName').value.trim();
+    const location = document.getElementById('reviewLocation').value.trim();
+    const dish = document.getElementById('reviewDish').value;
+    const rating = parseInt(document.getElementById('selectedRatingValue').value) || 5;
+    const comment = document.getElementById('reviewComment').value.trim();
+
+    if (!name || !comment) {
+      alert('Vui lòng nhập họ tên và nội dung cảm nhận của bạn.');
+      return;
     }
 
-    if (closeBtn && wrapper) {
-        closeBtn.addEventListener("click", () => wrapper.classList.add("hidden"));
+    const newReview = {
+      id: Date.now(),
+      name: name,
+      location: location || 'Khách hàng thực tế',
+      dish: dish,
+      rating: rating,
+      comment: comment,
+      date: new Date().toLocaleDateString('vi-VN')
+    };
+
+    let reviews = JSON.parse(localStorage.getItem('tiemchena_reviews') || '[]');
+    reviews.unshift(newReview);
+    localStorage.setItem('tiemchena_reviews', JSON.stringify(reviews));
+
+    form.reset();
+    document.getElementById('selectedRatingValue').value = '5';
+    const stars = document.querySelectorAll('#starsSelect i');
+    stars.forEach(s => s.classList.add('active'));
+
+    if (alertBox) {
+      alertBox.classList.remove('hidden');
+      setTimeout(() => {
+        alertBox.classList.add('hidden');
+        if (wrapper) wrapper.classList.add('hidden');
+      }, 2500);
     }
 
-    if (cancelBtn && wrapper) {
-        cancelBtn.addEventListener("click", () => wrapper.classList.add("hidden"));
-    }
+    renderReviewsList();
+    showToast('Cảm ơn bạn đã gửi đánh giá thực tế!');
+  });
+}
+
+function renderReviewsList() {
+  const grid = document.getElementById('reviewsGrid');
+  const avgScore = document.getElementById('avgRatingScore');
+  const totalCount = document.getElementById('totalReviewsCount');
+  if (!grid) return;
+
+  let reviews = JSON.parse(localStorage.getItem('tiemchena_reviews') || 'null');
+  if (!reviews || reviews.length === 0) {
+    reviews = [...INITIAL_REVIEWS];
+    localStorage.setItem('tiemchena_reviews', JSON.stringify(reviews));
+  }
+
+  const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 5), 0);
+  const score = (totalRating / reviews.length).toFixed(1);
+
+  if (avgScore) avgScore.textContent = score;
+  if (totalCount) totalCount.textContent = `${reviews.length} đánh giá thực tế`;
+
+  grid.innerHTML = reviews.map(r => {
+    const starStr = '★'.repeat(r.rating || 5) + '☆'.repeat(Math.max(0, 5 - (r.rating || 5)));
+    return `
+      <div class="review-card">
+        <div class="review-card-top">
+          <div class="review-stars-text">${starStr}</div>
+          <span class="review-date-text">${r.date || 'Gần đây'}</span>
+        </div>
+        <div class="review-dish-badge">
+          <i class="fa-solid fa-bowl-food"></i> ${escapeHtml(r.dish)}
+        </div>
+        <p class="review-body-text">"${escapeHtml(r.comment)}"</p>
+        <div class="reviewer-meta-box">
+          <div class="reviewer-avatar-circle">${escapeHtml(r.name.substring(0, 1).toUpperCase())}</div>
+          <div class="reviewer-name-col">
+            <strong>${escapeHtml(r.name)} <span class="verified-tag"><i class="fa-solid fa-circle-check"></i> Đã mua</span></strong>
+            <small>${escapeHtml(r.location || 'Thanh Trì, Hà Nội')}</small>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 window.openAndScrollToReviewForm = function() {
-    const wrapper = document.getElementById("review-form-wrapper");
-    if (wrapper) {
-        wrapper.classList.remove("hidden");
-        wrapper.scrollIntoView({ behavior: "smooth", block: "center" });
-        const nameInput = document.getElementById("review-name");
-        if (nameInput) setTimeout(() => nameInput.focus(), 400);
-    }
+  const wrapper = document.getElementById('reviewFormWrapper');
+  if (wrapper) {
+    wrapper.classList.remove('hidden');
+    wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const nameInput = document.getElementById('reviewName');
+    if (nameInput) setTimeout(() => nameInput.focus(), 400);
+  }
 };
-
-// Submit Real Review
-function initReviewFormSubmit() {
-    const form = document.getElementById("customer-review-form");
-    const successMsg = document.getElementById("review-success-msg");
-    const wrapper = document.getElementById("review-form-wrapper");
-
-    if (!form) return;
-
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const name = document.getElementById("review-name").value.trim();
-        const location = document.getElementById("review-location").value.trim();
-        const dish = document.getElementById("review-dish").value;
-        const rating = parseInt(document.getElementById("selected-rating-value").value) || 5;
-        const comment = document.getElementById("review-comment").value.trim();
-
-        if (!name || !comment) {
-            alert("Vui lòng nhập tên và nội dung cảm nhận của bạn.");
-            return;
-        }
-
-        const newReview = {
-            id: Date.now(),
-            name: name,
-            location: location || "Khách hàng thực tế",
-            dish: dish,
-            rating: rating,
-            comment: comment,
-            date: new Date().toLocaleDateString('vi-VN'),
-            verified: true
-        };
-
-        saveReview(newReview);
-
-        // Reset form
-        form.reset();
-        document.getElementById("selected-rating-value").value = "5";
-        const stars = document.querySelectorAll("#stars-select i");
-        stars.forEach(s => s.classList.add("active"));
-        const label = document.getElementById("rating-text-label");
-        if (label) label.textContent = RATING_TEXTS[5];
-
-        // Show success alert
-        if (successMsg) {
-            successMsg.classList.remove("hidden");
-            setTimeout(() => {
-                successMsg.classList.add("hidden");
-                if (wrapper) wrapper.classList.add("hidden");
-            }, 3000);
-        }
-
-        renderReviews();
-    });
-}
-
-function saveReview(review) {
-    let reviews = JSON.parse(localStorage.getItem("tiemchena_reviews") || "[]");
-    reviews.unshift(review);
-    localStorage.setItem("tiemchena_reviews", JSON.stringify(reviews));
-}
-
-window.deleteReview = function(id) {
-    if (confirm("Bạn có chắc muốn xóa đánh giá này?")) {
-        let reviews = JSON.parse(localStorage.getItem("tiemchena_reviews") || "[]");
-        reviews = reviews.filter(r => r.id !== id);
-        localStorage.setItem("tiemchena_reviews", JSON.stringify(reviews));
-        renderReviews();
-    }
-};
-
-const INITIAL_REVIEWS_LIST = [
-    {
-        id: 1790692450000,
-        name: "Phương Anh",
-        location: "Khu tập thể Văn Điển",
-        dish: "Mỳ Trộn Sốt Cay Đậm Đà",
-        rating: 5,
-        comment: "Mỳ trộn sốt cay đậm đà chuẩn vị, sợi mỳ dai ngon, đầy đặn topping bò khô và trứng cút. Chiều nào đói bụng đặt một phần là no căng bụng luôn!",
-        date: "29/09/2026",
-        verified: true
-    },
-    {
-        id: 1790692420000,
-        name: "Trần Đức Nam",
-        location: "Chung cư Tecco Diamond, Tứ Hiệp",
-        dish: "Chè Xoài Caramen Núng Nính",
-        rating: 5,
-        comment: "Caramen béo ngậy mềm tan, miếng xoài tươi ngọt đậm đà kết hợp nước cốt dừa thơm phức. Đóng gói rất cẩn thận, ship đến nơi vẫn mát lạnh.",
-        date: "29/09/2026",
-        verified: true
-    },
-    {
-        id: 1790692395817,
-        name: "Nguyễn Thị Hoa",
-        location: "Đường Vũ Lăng, Thanh Trì",
-        dish: "Nem Nướng Nha Trang Đặc Biệt",
-        rating: 5,
-        comment: "Nem nướng thơm ngon, sốt chấm gia truyền béo ngậy ăn rất cuốn! Rau sống tươi sạch, giao nhanh trong 20 phút.",
-        date: "29/09/2026",
-        verified: true
-    }
-];
-
-// Render Real Reviews List & Summary
-function renderReviews() {
-    const grid = document.getElementById("reviews-grid");
-    const scoreEl = document.getElementById("avg-rating-score");
-    const starsEl = document.getElementById("avg-rating-stars");
-    const countEl = document.getElementById("total-reviews-count");
-
-    if (!grid) return;
-
-    let reviews = JSON.parse(localStorage.getItem("tiemchena_reviews") || "null");
-    if (!reviews || reviews.length === 0) {
-        reviews = [...INITIAL_REVIEWS_LIST];
-        localStorage.setItem("tiemchena_reviews", JSON.stringify(reviews));
-    }
-
-    const heroRatingEl = document.getElementById("hero-rating-stat");
-
-    if (reviews.length === 0) {
-        if (scoreEl) scoreEl.textContent = "5.0";
-        if (starsEl) starsEl.textContent = "★★★★★";
-        if (countEl) countEl.textContent = "0 đánh giá thực tế";
-        if (heroRatingEl) heroRatingEl.textContent = "5.0 ★";
-
-        grid.innerHTML = `
-            <div class="empty-reviews-card">
-                <div class="empty-reviews-icon"><i class="fa-regular fa-comment-dots"></i></div>
-                <h4>Chưa có đánh giá nào từ khách hàng</h4>
-                <p>Bạn đã thưởng thức chè tại Tiệm Chè Na? Hãy là người đầu tiên chia sẻ cảm nhận chân thực để giúp tiệm ngày càng hoàn thiện nhé!</p>
-                <button class="btn btn-primary" onclick="document.getElementById('btn-toggle-review-form').click()">
-                    <i class="fa-solid fa-pen-to-square"></i> Viết Đánh Giá Ngay
-                </button>
-            </div>
-        `;
-        return;
-    }
-
-    // Calculate real average rating
-    const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 5), 0);
-    const avgScore = (totalRating / reviews.length).toFixed(1);
-
-    if (scoreEl) scoreEl.textContent = avgScore;
-    if (countEl) countEl.textContent = `${reviews.length} đánh giá thực tế`;
-    if (heroRatingEl) heroRatingEl.textContent = `${avgScore} ★`;
-
-    if (starsEl) {
-        const rounded = Math.round(avgScore);
-        starsEl.textContent = "★".repeat(rounded) + "☆".repeat(Math.max(0, 5 - rounded));
-    }
-
-    grid.innerHTML = reviews.map(r => {
-        const starCount = r.rating || 5;
-        const starStr = "★".repeat(starCount) + "☆".repeat(5 - starCount);
-        const initials = getInitials(r.name);
-
-        return `
-            <div class="review-card">
-                <div class="review-card-top">
-                    <div class="review-stars">${starStr}</div>
-                    <span class="review-date">${r.date || "Gần đây"}</span>
-                </div>
-
-                <div>
-                    <span class="review-dish-tag"><i class="fa-solid fa-bowl-food"></i> ${escapeHtml(r.dish)}</span>
-                </div>
-
-                <p class="review-comment">"${escapeHtml(r.comment)}"</p>
-
-                <div class="reviewer-info">
-                    <div class="reviewer-profile">
-                        <div class="reviewer-avatar">${initials}</div>
-                        <div class="reviewer-meta">
-                            <strong>
-                                ${escapeHtml(r.name)}
-                                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua</span>
-                            </strong>
-                            <small>${escapeHtml(r.location || "Khách hàng")}</small>
-                        </div>
-                    </div>
-                    <button class="review-action-btn" title="Xóa đánh giá này" onclick="deleteReview(${r.id})">
-                        <i class="fa-regular fa-trash-can"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-// Mobile Nav Toggle
-function initMobileNav() {
-    const toggle = document.getElementById("mobile-toggle");
-    const nav = document.getElementById("nav-menu");
-
-    if (toggle && nav) {
-        toggle.addEventListener("click", () => {
-            if (nav.style.display === "flex") {
-                nav.style.display = "none";
-            } else {
-                nav.style.display = "flex";
-                nav.style.flexDirection = "column";
-                nav.style.position = "absolute";
-                nav.style.top = "70px";
-                nav.style.left = "0";
-                nav.style.width = "100%";
-                nav.style.background = "#ffffff";
-                nav.style.padding = "20px";
-                nav.style.boxShadow = "0 10px 25px rgba(0,0,0,0.1)";
-            }
-        });
-    }
-}
