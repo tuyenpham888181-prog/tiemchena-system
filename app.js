@@ -617,7 +617,7 @@ const INITIAL_REVIEWS_LIST = [
     {
         id: 1790692395817,
         name: "Nguyễn Thị Hoa",
-        location: "Cư dân Ngũ Hiệp, Thanh Trì",
+        location: "Đường Vũ Lăng, Thanh Trì",
         dish: "Nem Nướng Nha Trang Đặc Biệt",
         rating: 5,
         comment: "Nem nướng thơm ngon, sốt chấm gia truyền béo ngậy ăn rất cuốn! Rau sống tươi sạch, giao nhanh trong 20 phút.",
