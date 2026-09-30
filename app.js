@@ -213,8 +213,53 @@ function closeCartDrawer() {
     if (overlay) overlay.classList.remove("active");
 }
 
+// Bank Account & VietQR Configuration
+const BANK_CONFIG = {
+    bankId: "MB", // Ngân hàng Quân Đội MB (BIN: 970422)
+    bankName: "MB Bank (Ngân hàng Quân Đội)",
+    accountNumber: "836888181",
+    accountHolder: "HỘ KINH DOANH TIỆM CHÈ NA",
+    accountHolderRaw: "HO KINH DOANH TIEM CHE NA",
+    template: "compact2"
+};
+
 // Lead & Order Capture System
 const ZALO_OWNER_PHONE = "0986479285";
+
+function getVietQrUrl(amount = 0, memo = "") {
+    let url = `https://img.vietqr.io/image/${BANK_CONFIG.bankId}-${BANK_CONFIG.accountNumber}-${BANK_CONFIG.template}.png`;
+    const params = [];
+    if (amount > 0) {
+        params.push(`amount=${amount}`);
+    }
+    if (memo) {
+        params.push(`addInfo=${encodeURIComponent(memo)}`);
+    }
+    params.push(`accountName=${encodeURIComponent(BANK_CONFIG.accountHolderRaw)}`);
+    return `${url}?${params.join("&")}`;
+}
+
+window.copyTextToClipboard = function(text, btnElement, successMsg = "Đã chép") {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            if (btnElement) {
+                const originalHtml = btnElement.innerHTML;
+                btnElement.innerHTML = `<i class="fa-solid fa-check"></i> ${successMsg}`;
+                btnElement.style.background = "#059669";
+                btnElement.style.color = "#ffffff";
+                setTimeout(() => {
+                    btnElement.innerHTML = originalHtml;
+                    btnElement.style.background = "";
+                    btnElement.style.color = "";
+                }, 2000);
+            }
+        }).catch(() => {
+            prompt("Nhấn Ctrl+C để sao chép:", text);
+        });
+    } else {
+        prompt("Nhấn Ctrl+C để sao chép:", text);
+    }
+};
 
 function initLeadForm() {
     const form = document.getElementById("lead-form");
@@ -250,6 +295,8 @@ function initLeadForm() {
 
         const discount = totalPrice > 0 ? 20000 : 0;
         const finalPrice = Math.max(0, totalPrice - discount);
+        const transferMemo = `TIEMCHENA ${orderCode}`;
+        const qrImageUrl = getVietQrUrl(finalPrice, transferMemo);
 
         const newLead = {
             id: Date.now(),
@@ -284,29 +331,87 @@ function initLeadForm() {
             zaloMessage += `📝 Ghi chú: ${note}\n`;
         }
         zaloMessage += `--------------------------------\n`;
+        zaloMessage += `💳 THÔNG TIN CHUYỂN KHOẢN (MB BANK):\n`;
+        zaloMessage += ` • Ngân hàng: ${BANK_CONFIG.bankName}\n`;
+        zaloMessage += ` • Số tài khoản: ${BANK_CONFIG.accountNumber}\n`;
+        zaloMessage += ` • Chủ tài khoản: ${BANK_CONFIG.accountHolder}\n`;
+        if (finalPrice > 0) {
+            zaloMessage += ` • Số tiền: ${formatMoney(finalPrice)}\n`;
+            zaloMessage += ` • Nội dung CK: ${transferMemo}\n`;
+        }
+        zaloMessage += `--------------------------------\n`;
         zaloMessage += `Tiệm Chè Na vui lòng xác nhận và chuẩn bị đơn giúp mình nhé!`;
 
         // Render Invoice Preview in HTML
         if (invoicePreview) {
             invoicePreview.innerHTML = `
-                <div style="font-weight: 700; color: #0f172a; margin-bottom: 8px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px; display: flex; justify-content: space-between;">
-                    <span>Mã Đơn: #${orderCode}</span>
-                    <span style="color: #059669; font-size: 0.85rem;">${orderTime}</span>
+                <div style="font-weight: 700; color: #0f172a; margin-bottom: 10px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                    <span>Mã Đơn: <span style="color: #047857; font-weight: 800;">#${orderCode}</span></span>
+                    <span style="color: #64748b; font-size: 0.85rem;">${orderTime}</span>
                 </div>
                 <div style="line-height: 1.6;">
                     <div><strong>Khách hàng:</strong> ${escapeHtml(name)} - <strong>SĐT:</strong> ${escapeHtml(phone)}</div>
                     <div><strong>Địa chỉ:</strong> ${escapeHtml(address || "Chưa cung cấp")}</div>
                     ${cart.length > 0 ? `
-                        <div style="margin-top: 8px; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                        <div style="margin-top: 10px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
                             <strong style="color: #047857;">Món đã chọn:</strong>
                             <ul style="margin: 4px 0 6px 18px; padding: 0;">
                                 ${cart.map(i => `<li>${i.qty}x ${escapeHtml(i.name)}: <strong>${formatMoney(i.price * i.qty)}</strong></li>`).join('')}
                             </ul>
                             <div style="font-size: 0.85rem; color: #64748b;">Ưu đãi Voucher: <strong>-20.000đ</strong></div>
-                            <div style="font-size: 1.05rem; font-weight: 800; color: #dc2626; margin-top: 4px;">Tổng cộng: ${formatMoney(finalPrice)}</div>
+                            <div style="font-size: 1.1rem; font-weight: 800; color: #dc2626; margin-top: 4px;">Tổng cộng: ${formatMoney(finalPrice)}</div>
                         </div>
                     ` : ''}
-                    ${note ? `<div style="margin-top: 6px; font-style: italic; color: #475569;"><strong>Ghi chú:</strong> ${escapeHtml(note)}</div>` : ''}
+                    ${note ? `<div style="margin-top: 8px; font-style: italic; color: #475569;"><strong>Ghi chú:</strong> ${escapeHtml(note)}</div>` : ''}
+                </div>
+
+                <!-- QR Code & Bank Transfer Section -->
+                <div class="qr-payment-card" style="margin-top: 14px; background: #ffffff; border: 1.5px solid #10b981; border-radius: 12px; padding: 14px; box-shadow: 0 4px 12px rgba(16,185,129,0.1);">
+                    <div style="font-weight: 700; color: #065f46; font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-qrcode" style="font-size: 1.15rem; color: #059669;"></i>
+                        <span>Quét mã QR Chuyển khoản (VietQR MB Bank)</span>
+                    </div>
+                    
+                    <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+                        <div style="text-align: center; flex-shrink: 0; margin: 0 auto;">
+                            <img src="${qrImageUrl}" alt="VietQR MB Bank ${BANK_CONFIG.accountNumber}" style="width: 170px; height: 170px; object-fit: contain; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                            <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Quét nhanh bằng App Ngân hàng / MoMo</div>
+                        </div>
+
+                        <div style="flex: 1; min-width: 200px; font-size: 0.88rem; line-height: 1.65; color: #1e293b;">
+                            <div style="margin-bottom: 6px;">
+                                <span style="color: #64748b; font-size: 0.8rem;">Ngân hàng:</span><br>
+                                <strong style="color: #0f172a; font-weight: 700;">${BANK_CONFIG.bankName}</strong>
+                            </div>
+
+                            <div style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; background: #f1f5f9; padding: 4px 8px; border-radius: 6px;">
+                                <div>
+                                    <span style="color: #64748b; font-size: 0.75rem;">Số tài khoản:</span><br>
+                                    <strong style="color: #047857; font-size: 1.05rem; letter-spacing: 0.5px;">${BANK_CONFIG.accountNumber}</strong>
+                                </div>
+                                <button type="button" onclick="copyTextToClipboard('${BANK_CONFIG.accountNumber}', this, 'Đã chép')" style="border: none; background: #059669; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                    <i class="fa-regular fa-copy"></i> Chép STK
+                                </button>
+                            </div>
+
+                            <div style="margin-bottom: 6px;">
+                                <span style="color: #64748b; font-size: 0.8rem;">Chủ tài khoản:</span><br>
+                                <strong style="color: #0f172a; text-transform: uppercase;">${BANK_CONFIG.accountHolder}</strong>
+                            </div>
+
+                            ${finalPrice > 0 ? `
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: #fef2f2; padding: 4px 8px; border-radius: 6px; border: 1px dashed #fca5a5;">
+                                    <div>
+                                        <span style="color: #991b1b; font-size: 0.75rem;">Nội dung CK:</span><br>
+                                        <strong style="color: #dc2626; font-size: 0.95rem;">${transferMemo}</strong>
+                                    </div>
+                                    <button type="button" onclick="copyTextToClipboard('${transferMemo}', this, 'Đã chép')" style="border: none; background: #dc2626; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                        <i class="fa-regular fa-copy"></i> Chép mã
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
                 </div>
             `;
         }

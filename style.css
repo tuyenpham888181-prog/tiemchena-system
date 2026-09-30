@@ -1529,8 +1529,8 @@ h1, h2, h3, h4 {
 
 .footer-container {
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr;
-    gap: 40px;
+    grid-template-columns: 1.3fr 1fr 1fr 1.1fr;
+    gap: 30px;
     margin-bottom: 40px;
 }
 
@@ -1540,8 +1540,9 @@ h1, h2, h3, h4 {
 
 .footer-col h4 {
     color: #ffffff;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     margin-bottom: 16px;
+    font-weight: 700;
 }
 
 .footer-col p {
@@ -1575,8 +1576,14 @@ h1, h2, h3, h4 {
     }
     
     .footer-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
         gap: 30px;
+    }
+}
+
+@media (max-width: 640px) {
+    .footer-container {
+        grid-template-columns: 1fr;
     }
 }
 
